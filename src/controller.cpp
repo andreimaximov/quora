@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include "controller.h"
 
 const std::string Controller::ADD_CMD = "ADD";
@@ -12,10 +13,14 @@ const std::string Controller::WQUERY_CMD = "WQUERY";
 void Controller::call(std::string* command) {
     COMMAND cmd = this->getCommand(command);
     switch (cmd) {
-        case COMMAND::ADD: break;
-        case COMMAND::DEL: break;
-        case COMMAND::QUERY: break;
-        case COMMAND::WQUERY: break;
+        case COMMAND::ADD: this->add(command);
+            break;
+        case COMMAND::DEL: this->del(command);
+            break;
+        case COMMAND::QUERY: this->query(command);
+            break;
+        case COMMAND::WQUERY: this->wquery(command);
+            break;
     }
 }
 
@@ -37,4 +42,18 @@ COMMAND Controller::getCommand(std::string* command) {
     }
 
     throw std::invalid_argument("Invalid command!");
+}
+
+void Controller::add(std::string* command) {
+}
+
+void Controller::del(std::string* command) {
+}
+
+std::vector<std::string>* Controller::query(std::string* command) {
+    return 0;
+}
+
+std::vector<std::string>* Controller::wquery(std::string* command) {
+    return 0;
 }
