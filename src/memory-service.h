@@ -17,6 +17,7 @@ typedef struct {
 class MemoryService {
  public:
     virtual void add(Item* item);
+
     virtual void del(std::string* id);
 };
 
