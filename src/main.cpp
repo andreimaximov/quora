@@ -5,11 +5,10 @@
 int main() {
     Controller* controller = new Controller;
 
-    int queries;
-    std::cin >> queries;
-    std::cin.ignore('\n');
-
     std::string line;
+    std::getline(std::cin, line);
+    int queries = std::stoi(line);
+
     while (queries > 0) {
         std::getline(std::cin, line);
         controller->call(&line);
