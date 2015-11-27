@@ -11,7 +11,7 @@ typedef struct {
 } TypeBoost;
 
 typedef struct {
-    std::string* id;
+    std::string id;
     double boost;
 } IdBoost;
 

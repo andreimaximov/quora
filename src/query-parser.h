@@ -1,4 +1,5 @@
 #include <string>
+#include <map>
 #include "query.h"
 
 #ifndef SRC_QUERY_PARSER_H_
@@ -6,6 +7,8 @@
 
 class QueryParser {
  private:
+    std::map<std::string, ItemType>* typeMap;
+
     virtual std::vector<std::string>* split(std::string text, char delimeter);
 
     virtual Query* parseWQuery(std::string* args);
@@ -13,6 +16,8 @@ class QueryParser {
     virtual Query* parseQuery(std::string* args);
 
  public:
+    explicit QueryParser(std::map<std::string, ItemType>* typeMap);
+
     virtual Query* parse(std::string* query);
 };
 

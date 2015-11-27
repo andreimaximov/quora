@@ -1,4 +1,3 @@
-#include <iostream>
 #include "controller.h"
 
 const std::string Controller::ADD_CMD = "ADD";
@@ -41,15 +40,5 @@ void Controller::del(std::string* command) {
 }
 
 std::vector<std::string>* Controller::query(std::string* command) {
-    Query* q = this->queryParser->parse(command);
-
-    if (q == 0) {
-        return 0;
-    }
-
-    for (size_t i = 0; i < q->tokens->size(); i++) {
-        std::cout << (*q->tokens)[i] << std::endl;
-    }
-
     return 0;
 }
