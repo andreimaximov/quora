@@ -20,14 +20,10 @@ Query* QueryParser::parseQuery(std::string* args) {
     Query* q = new Query;
     q->typeBoosts = NULL;
     q->idBoosts = NULL;
+    q->tokens = this->split(*args, ' ');
 
-    size_t resultsSpace = args->find(' ');
-    q->results = std::stoi(args->substr(0, resultsSpace));
-
-    size_t tokensLength = args->length() - 1 - resultsSpace;
-    std::string tokensString = args->substr(resultsSpace + 1, tokensLength);
-    q->tokens = this->split(tokensString, ' ');
-
+    q->results = std::stoi((*q->tokens)[0]);
+    q->tokens->erase(q->tokens->begin());
     return q;
 }
 
