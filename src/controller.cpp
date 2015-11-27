@@ -1,5 +1,4 @@
-#include <string>
-#include <vector>
+#include <iostream>
 #include "controller.h"
 
 const std::string Controller::ADD_CMD = "ADD";
@@ -10,38 +9,29 @@ const std::string Controller::QUERY_CMD = "QUERY";
 
 const std::string Controller::WQUERY_CMD = "WQUERY";
 
-void Controller::call(std::string* command) {
-    COMMAND cmd = this->getCommand(command);
-    switch (cmd) {
-        case COMMAND::ADD: this->add(command);
-            break;
-        case COMMAND::DEL: this->del(command);
-            break;
-        case COMMAND::QUERY: this->query(command);
-            break;
-        case COMMAND::WQUERY: this->wquery(command);
-            break;
-    }
+Controller::Controller(QueryParser* queryParser) {
+    this->queryParser = queryParser;
 }
 
-COMMAND Controller::getCommand(std::string* command) {
-    size_t i = command->find_first_of(' ');
+void Controller::call(std::string* command) {
+    size_t i = command->find(' ');
     if (i == std::string::npos) {
         throw std::invalid_argument("Could not parse command!");
     }
 
-    std::string cmd = command->substr(0, i + 1);
-    if (cmd.compare(Controller::ADD_CMD) != 0) {
-        return COMMAND::ADD;
-    } else if (cmd.compare(Controller::DEL_CMD) != 0) {
-        return COMMAND::DEL;
-    } else if (cmd.compare(Controller::QUERY_CMD) != 0) {
-        return COMMAND::QUERY;
-    } else if (cmd.compare(Controller::WQUERY_CMD) != 0) {
-        return COMMAND::WQUERY;
-    }
+    std::string action = command->substr(0, i);
 
-    throw std::invalid_argument("Invalid command!");
+    if (action.compare(Controller::ADD_CMD) == 0) {
+        this->add(command);
+    } else if (action.compare(Controller::DEL_CMD) == 0) {
+        this->del(command);
+    } else if (action.compare(Controller::QUERY_CMD) == 0) {
+        this->query(command);
+    } else if (action.compare(Controller::WQUERY_CMD) == 0) {
+        this->query(command);
+    } else {
+        throw std::invalid_argument("Invalid command!");
+    }
 }
 
 void Controller::add(std::string* command) {
@@ -51,9 +41,15 @@ void Controller::del(std::string* command) {
 }
 
 std::vector<std::string>* Controller::query(std::string* command) {
-    return 0;
-}
+    Query* q = this->queryParser->parse(command);
 
-std::vector<std::string>* Controller::wquery(std::string* command) {
+    if (q == 0) {
+        return 0;
+    }
+
+    for (size_t i = 0; i < q->tokens->size(); i++) {
+        std::cout << (*q->tokens)[i] << std::endl;
+    }
+
     return 0;
 }

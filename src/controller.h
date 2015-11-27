@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include "query-parser.h"
 
 #ifndef SRC_CONTROLLER_H_
 #define SRC_CONTROLLER_H_
@@ -10,15 +11,13 @@ enum COMMAND {
 
 class Controller {
  private:
-    virtual COMMAND getCommand(std::string* command);
+    QueryParser* queryParser;
 
     virtual void add(std::string* command);
 
     virtual void del(std::string* command);
 
     virtual std::vector<std::string>* query(std::string* command);
-
-    virtual std::vector<std::string>* wquery(std::string* command);
 
  public:
     static const std::string ADD_CMD;
@@ -28,6 +27,8 @@ class Controller {
     static const std::string QUERY_CMD;
 
     static const std::string WQUERY_CMD;
+
+    explicit Controller(QueryParser* QueryParser);
 
     virtual void call(std::string* command);
 };

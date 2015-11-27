@@ -3,7 +3,8 @@
 #include "controller.h"
 
 int main() {
-    Controller* controller = new Controller;
+    QueryParser* queryParser = new QueryParser();
+    Controller* controller = new Controller(queryParser);
 
     std::string line;
     std::getline(std::cin, line);
