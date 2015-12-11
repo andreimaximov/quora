@@ -9,8 +9,6 @@ class QueryParser {
  private:
     std::map<std::string, ItemType>* typeMap;
 
-    virtual std::vector<std::string>* split(std::string text, char delimeter);
-
     virtual Query* parseWQuery(std::string* args);
 
     virtual Query* parseQuery(std::string* args);
