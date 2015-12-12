@@ -29,6 +29,7 @@ Query QueryParser::parseWQuery(const std::string &args) {
         }
     }
 
+    q.tokens = std::move(tokens);
     q.tokens.erase(q.tokens.begin(), q.tokens.begin() + 2 + boosts);
 
     return q;
