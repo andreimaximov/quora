@@ -1,13 +1,18 @@
 #include <iostream>
 #include <string>
-#include <map>
+#include <memory>
+#include "query-parser.h"
+#include "memory-service.h"
 #include "controller.h"
-#include "item.h"
 
 int main() {
-    QueryParser queryParser;
-    MemoryService memoryService;
-    Controller controller(queryParser, memoryService);
+    auto queryParser = std::make_shared<QueryParser>();
+
+    auto memoryService = std::make_shared<MemoryService>();
+
+    auto controller = std::make_shared<Controller>(
+        queryParser,
+        memoryService);
 
     std::string line;
     std::getline(std::cin, line);
@@ -15,7 +20,8 @@ int main() {
 
     while (queries > 0) {
         std::getline(std::cin, line);
-        controller.call(line);
+        controller->call(line);
+        memoryService->status();
         queries--;
     }
     return 0;

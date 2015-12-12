@@ -11,9 +11,11 @@ const std::string Controller::QUERY_CMD = "QUERY";
 
 const std::string Controller::WQUERY_CMD = "WQUERY";
 
-Controller::Controller(QueryParser parser, MemoryService store) :
-    queryParser(std::move(parser)),
-    memoryService(std::move(store)) {
+Controller::Controller(
+    std::shared_ptr<QueryParser> queryParser,
+    std::shared_ptr<MemoryService> memoryService) {
+    this->queryParser = queryParser;
+    this->memoryService = memoryService;
 }
 
 void Controller::call(const std::string &command) {
@@ -35,8 +37,6 @@ void Controller::call(const std::string &command) {
     } else {
         throw std::invalid_argument("Invalid command!");
     }
-
-    this->memoryService.status();
 }
 
 void Controller::add(const std::string &command) {
@@ -51,15 +51,15 @@ void Controller::add(const std::string &command) {
         tokens[4]
     };
 
-    this->memoryService.add(item);
+    this->memoryService->add(item);
 }
 
 void Controller::del(const std::string &command) {
     std::vector<std::string> tokens = split(command, ' ');
-    this->memoryService.del(tokens[1]);
+    this->memoryService->del(tokens[1]);
 }
 
 std::vector<std::string> Controller::query(const std::string &command) {
-    Query q = this->queryParser.parse(command);
-    return this->memoryService.query(q);
+    Query q = this->queryParser->parse(command);
+    return this->memoryService->query(q);
 }
