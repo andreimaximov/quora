@@ -1,5 +1,4 @@
 #include <string>
-#include <vector>
 #include <memory>
 #include "query-parser.h"
 #include "memory-service.h"
@@ -21,7 +20,7 @@ class Controller {
 
     virtual void del(const std::string &command);
 
-    virtual std::vector<std::string> query(const std::string &command);
+    virtual void query(const std::string &command);
 
  public:
     static const std::string ADD_CMD;

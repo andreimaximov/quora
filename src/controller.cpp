@@ -1,3 +1,4 @@
+#include <vector>
 #include "controller.h"
 #include "query.h"
 #include "split.h"
@@ -59,7 +60,7 @@ void Controller::del(const std::string &command) {
     this->memoryService->del(tokens[1]);
 }
 
-std::vector<std::string> Controller::query(const std::string &command) {
+void Controller::query(const std::string &command) {
     Query q = this->queryParser->parse(command);
-    return this->memoryService->query(q);
+    std::vector<std::string> results = this->memoryService->query(q);
 }
