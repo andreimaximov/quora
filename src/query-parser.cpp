@@ -1,9 +1,10 @@
 #include <vector>
+#include <map>
 #include "query-parser.h"
 #include "split.h"
 
-QueryParser::QueryParser(std::map<std::string, ItemType>* typeMap) {
-    this->typeMap = typeMap;
+QueryParser::QueryParser(std::map<std::string, ItemType> types) :
+    typeMap(std::move(types)) {
 }
 
 Query* QueryParser::parseWQuery(std::string* args) {
@@ -23,9 +24,9 @@ Query* QueryParser::parseWQuery(std::string* args) {
         double boostFactor = std::stod((*boostTokens)[1]);
 
         std::map<std::string, ItemType>::iterator typeIterator =
-            this->typeMap->find(boostClassifier);
+            this->typeMap.find(boostClassifier);
 
-        if (typeIterator == this->typeMap->end()) {
+        if (typeIterator == this->typeMap.end()) {
             IdBoost boost {boostClassifier, boostFactor};
             q->idBoosts->push_back(boost);
         } else {

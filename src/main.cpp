@@ -11,7 +11,7 @@ int main() {
     typeMap["QUESTION"] = ItemType::QUESTION;
     typeMap["BOARD"] = ItemType::BOARD;
 
-    QueryParser* queryParser = new QueryParser(&typeMap);
+    QueryParser* queryParser = new QueryParser(typeMap);
     Controller* controller = new Controller(queryParser);
 
     std::string line;
