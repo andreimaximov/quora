@@ -28,7 +28,7 @@ class Controller {
 
     static const std::string WQUERY_CMD;
 
-    explicit Controller(QueryParser QueryParser);
+    explicit Controller(QueryParser parser);
 
     virtual void call(const std::string &command);
 };

@@ -5,13 +5,7 @@
 #include "item.h"
 
 int main() {
-    std::map<std::string, ItemType> typeMap;
-    typeMap["USER"] = ItemType::USER;
-    typeMap["TOPIC"] = ItemType::TOPIC;
-    typeMap["QUESTION"] = ItemType::QUESTION;
-    typeMap["BOARD"] = ItemType::BOARD;
-
-    QueryParser queryParser(typeMap);
+    QueryParser queryParser;
     Controller controller(queryParser);
 
     std::string line;

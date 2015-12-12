@@ -1,12 +1,19 @@
 #include <vector>
 #include <sstream>
 
-std::vector<std::string> split(const std::string &src, char delim) {
+std::vector<std::string> split(const std::string &src, char delim, int limit) {
     std::vector<std::string> tokens;
     std::stringstream stream(src);
     std::string token;
-    while (getline(stream, token, delim)) {
+    while (--limit != 0 && getline(stream, token, delim)) {
+        tokens.push_back(token);
+    }
+    if (getline(stream, token)) {
         tokens.push_back(token);
     }
     return tokens;
+}
+
+std::vector<std::string> split(const std::string &src, char delim) {
+    return split(src, delim, -1);
 }

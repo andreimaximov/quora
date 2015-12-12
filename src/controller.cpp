@@ -1,4 +1,6 @@
 #include "controller.h"
+#include "query.h"
+#include "split.h"
 
 const std::string Controller::ADD_CMD = "ADD";
 
@@ -40,5 +42,6 @@ void Controller::del(const std::string &command) {
 }
 
 std::vector<std::string> Controller::query(const std::string &command) {
+    Query q = this->queryParser.parse(command);
     return std::vector<std::string>();
 }

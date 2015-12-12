@@ -7,15 +7,11 @@
 
 class QueryParser {
  private:
-    std::map<std::string, ItemType> typeMap;
-
     virtual Query parseWQuery(const std::string &args);
 
     virtual Query parseQuery(const std::string &args);
 
  public:
-    explicit QueryParser(std::map<std::string, ItemType> types);
-
     virtual Query parse(const std::string &query);
 };
 

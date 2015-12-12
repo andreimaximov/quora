@@ -1,10 +1,7 @@
 #include <vector>
 #include "query-parser.h"
 #include "split.h"
-
-QueryParser::QueryParser(std::map<std::string, ItemType> types) :
-    typeMap(std::move(types)) {
-}
+#include "item.h"
 
 Query QueryParser::parseWQuery(const std::string &args) {
     std::vector<std::string> tokens = split(args, ' ');
@@ -17,14 +14,13 @@ Query QueryParser::parseWQuery(const std::string &args) {
         std::vector<std::string> boostTokens = split(tokens[i], ':');
         double factor = std::stod(boostTokens[1]);
 
-        std::map<std::string, ItemType>::iterator typeIterator =
-            this->typeMap.find(boostTokens[0]);
+        ItemType type = itemtype(boostTokens[0]);
 
-        if (typeIterator == this->typeMap.end()) {
+        if (type == ItemType::INVALID) {
             IdBoost boost(boostTokens[0], factor);
             q.idBoosts.push_back(boost);
         } else {
-            TypeBoost boost(typeIterator->second, factor);
+            TypeBoost boost(type, factor);
             q.typeBoosts.push_back(boost);
         }
     }
