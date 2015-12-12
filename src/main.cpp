@@ -11,8 +11,8 @@ int main() {
     typeMap["QUESTION"] = ItemType::QUESTION;
     typeMap["BOARD"] = ItemType::BOARD;
 
-    QueryParser* queryParser = new QueryParser(typeMap);
-    Controller* controller = new Controller(queryParser);
+    QueryParser queryParser(typeMap);
+    Controller controller(queryParser);
 
     std::string line;
     std::getline(std::cin, line);
@@ -20,7 +20,7 @@ int main() {
 
     while (queries > 0) {
         std::getline(std::cin, line);
-        controller->call(&line);
+        controller.call(line);
         queries--;
     }
     return 0;

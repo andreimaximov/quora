@@ -11,13 +11,13 @@ enum COMMAND {
 
 class Controller {
  private:
-    QueryParser* queryParser;
+    QueryParser queryParser;
 
-    virtual void add(std::string* command);
+    virtual void add(const std::string &command);
 
-    virtual void del(std::string* command);
+    virtual void del(const std::string &command);
 
-    virtual std::vector<std::string>* query(std::string* command);
+    virtual std::vector<std::string> query(const std::string &command);
 
  public:
     static const std::string ADD_CMD;
@@ -28,9 +28,9 @@ class Controller {
 
     static const std::string WQUERY_CMD;
 
-    explicit Controller(QueryParser* QueryParser);
+    explicit Controller(QueryParser QueryParser);
 
-    virtual void call(std::string* command);
+    virtual void call(const std::string &command);
 };
 
 #endif  // SRC_CONTROLLER_H_

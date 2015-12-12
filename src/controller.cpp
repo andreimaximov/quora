@@ -8,17 +8,17 @@ const std::string Controller::QUERY_CMD = "QUERY";
 
 const std::string Controller::WQUERY_CMD = "WQUERY";
 
-Controller::Controller(QueryParser* queryParser) {
-    this->queryParser = queryParser;
+Controller::Controller(QueryParser parser) :
+    queryParser(std::move(parser)) {
 }
 
-void Controller::call(std::string* command) {
-    size_t i = command->find(' ');
+void Controller::call(const std::string &command) {
+    size_t i = command.find(' ');
     if (i == std::string::npos) {
         throw std::invalid_argument("Could not parse command!");
     }
 
-    std::string action = command->substr(0, i);
+    std::string action = command.substr(0, i);
 
     if (action.compare(Controller::ADD_CMD) == 0) {
         this->add(command);
@@ -33,12 +33,12 @@ void Controller::call(std::string* command) {
     }
 }
 
-void Controller::add(std::string* command) {
+void Controller::add(const std::string &command) {
 }
 
-void Controller::del(std::string* command) {
+void Controller::del(const std::string &command) {
 }
 
-std::vector<std::string>* Controller::query(std::string* command) {
-    return 0;
+std::vector<std::string> Controller::query(const std::string &command) {
+    return std::vector<std::string>();
 }
