@@ -1,7 +1,11 @@
 #include <vector>
 #include <sstream>
 
-std::vector<std::string> split(const std::string &src, char delim, int limit) {
+std::vector<std::string> split(
+    const std::string &src,
+    char delim,
+    int limit = -1
+) {
     std::vector<std::string> tokens;
     std::stringstream stream(src);
     std::string token;
@@ -12,8 +16,4 @@ std::vector<std::string> split(const std::string &src, char delim, int limit) {
         tokens.push_back(token);
     }
     return tokens;
-}
-
-std::vector<std::string> split(const std::string &src, char delim) {
-    return split(src, delim, -1);
 }
