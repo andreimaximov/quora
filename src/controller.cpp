@@ -35,6 +35,8 @@ void Controller::call(const std::string &command) {
     } else {
         throw std::invalid_argument("Invalid command!");
     }
+
+    this->memoryService.status();
 }
 
 void Controller::add(const std::string &command) {

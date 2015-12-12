@@ -1,5 +1,4 @@
 #include <string>
-#include <map>
 #include "query.h"
 
 #ifndef SRC_QUERY_PARSER_H_
