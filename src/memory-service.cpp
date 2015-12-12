@@ -11,15 +11,19 @@ void MemoryService::add(Item item) {
     if (this->items.find(item.id) != this->items.end()) {
         return;
     }
-    this->items[item.id] = item;
 
-    std::vector<std::string> words = split(item.data, ' ');
-    for (size_t i = 0; i < words.size(); i++) {
-        auto found = this->tokens.find(words[i]);
+    ItemEntry entry {
+        item,
+        split(item.data, ' ')
+    };
+    this->items[item.id] = entry;
+
+    for (auto &word : entry.tokens) {
+        auto found = this->tokens.find(word);
         if (found == this->tokens.end()) {
             std::unordered_set<std::string> set;
             set.insert(item.id);
-            this->tokens.insert(std::make_pair(words[i], set));
+            this->tokens.insert(std::make_pair(word, set));
         } else {
             found->second.insert(item.id);
         }
@@ -27,6 +31,17 @@ void MemoryService::add(Item item) {
 }
 
 void MemoryService::del(const std::string &id) {
+    if (this->items.find(id) == this->items.end()) {
+        return;
+    }
+
+    ItemEntry &entry = this->items[id];
+
+    for (auto &word : entry.tokens) {
+        this->tokens[word].erase(id);
+    }
+
+    this->items.erase(id);
 }
 
 std::vector<std::string> MemoryService::query(Query query) {

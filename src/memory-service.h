@@ -9,11 +9,16 @@
 #ifndef SRC_MEMORY_SERVICE_H_
 #define SRC_MEMORY_SERVICE_H_
 
+struct ItemEntry {
+    Item item;
+    std::vector<std::string> tokens;
+};
+
 class MemoryService {
  private:
     std::unordered_map<std::string, std::unordered_set<std::string>> tokens;
 
-    std::unordered_map<std::string, Item> items;
+    std::unordered_map<std::string, ItemEntry> items;
 
     std::ostream &out;
 
