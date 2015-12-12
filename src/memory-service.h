@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include "item.h"
 #include "query.h"
 
@@ -7,11 +8,11 @@
 
 class MemoryService {
  public:
-    virtual void add(Item* item);
+    virtual void add(Item item);
 
-    virtual void del(std::string* id);
+    virtual void del(const std::string &id);
 
-    virtual void query(Query* query);
+    virtual std::vector<std::string> query(Query query);
 };
 
 #endif  // SRC_MEMORY_SERVICE_H_

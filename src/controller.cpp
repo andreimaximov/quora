@@ -1,6 +1,7 @@
 #include "controller.h"
 #include "query.h"
 #include "split.h"
+#include "item.h"
 
 const std::string Controller::ADD_CMD = "ADD";
 
@@ -10,8 +11,9 @@ const std::string Controller::QUERY_CMD = "QUERY";
 
 const std::string Controller::WQUERY_CMD = "WQUERY";
 
-Controller::Controller(QueryParser parser) :
-    queryParser(std::move(parser)) {
+Controller::Controller(QueryParser parser, MemoryService store) :
+    queryParser(std::move(parser)),
+    memoryService(std::move(store)) {
 }
 
 void Controller::call(const std::string &command) {
@@ -36,12 +38,26 @@ void Controller::call(const std::string &command) {
 }
 
 void Controller::add(const std::string &command) {
+    std::vector<std::string> tokens = split(command, ' ', 5);
+    ItemType type = itemtype(tokens[1]);
+    double score = std::stod(tokens[3]);
+
+    Item item {
+        type,
+        tokens[2],
+        score,
+        tokens[4]
+    };
+
+    this->memoryService.add(item);
 }
 
 void Controller::del(const std::string &command) {
+    std::vector<std::string> tokens = split(command, ' ');
+    this->memoryService.del(tokens[1]);
 }
 
 std::vector<std::string> Controller::query(const std::string &command) {
     Query q = this->queryParser.parse(command);
-    return std::vector<std::string>();
+    return this->memoryService.query(q);
 }

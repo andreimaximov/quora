@@ -1,11 +1,13 @@
 #include <string>
+#include <vector>
 #include "memory-service.h"
 
-void MemoryService::add(Item* item) {
+void MemoryService::add(Item item) {
 }
 
-void MemoryService::del(std::string* id) {
+void MemoryService::del(const std::string &id) {
 }
 
-void MemoryService::query(Query* query) {
+std::vector<std::string> MemoryService::query(Query query) {
+    return std::vector<std::string>();
 }

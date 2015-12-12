@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include "query-parser.h"
+#include "memory-service.h"
 
 #ifndef SRC_CONTROLLER_H_
 #define SRC_CONTROLLER_H_
@@ -12,6 +13,8 @@ enum COMMAND {
 class Controller {
  private:
     QueryParser queryParser;
+
+    MemoryService memoryService;
 
     virtual void add(const std::string &command);
 
@@ -28,7 +31,7 @@ class Controller {
 
     static const std::string WQUERY_CMD;
 
-    explicit Controller(QueryParser parser);
+    explicit Controller(QueryParser parser, MemoryService store);
 
     virtual void call(const std::string &command);
 };

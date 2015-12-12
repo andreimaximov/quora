@@ -7,12 +7,12 @@ enum ItemType {
     USER, TOPIC, QUESTION, BOARD, INVALID
 };
 
-typedef struct {
+struct Item {
     ItemType type;
     std::string id;
     double score;
     std::string data;
-} Item;
+};
 
 const std::string USER_TYPE = "user";
 

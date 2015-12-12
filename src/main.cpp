@@ -6,7 +6,8 @@
 
 int main() {
     QueryParser queryParser;
-    Controller controller(queryParser);
+    MemoryService memoryService;
+    Controller controller(queryParser, memoryService);
 
     std::string line;
     std::getline(std::cin, line);
