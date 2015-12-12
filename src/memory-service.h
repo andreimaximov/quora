@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <iostream>
 #include "item.h"
 #include "query.h"
 
@@ -14,7 +15,11 @@ class MemoryService {
 
     std::unordered_map<std::string, Item> items;
 
+    std::ostream &out;
+
  public:
+    explicit MemoryService(std::ostream &os); // NOLINT
+
     virtual void add(Item item);
 
     virtual void del(const std::string &id);

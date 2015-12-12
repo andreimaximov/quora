@@ -4,6 +4,9 @@
 #include "memory-service.h"
 #include "split.h"
 
+MemoryService::MemoryService(std::ostream &os) : out(os) {
+}
+
 void MemoryService::add(Item item) {
     if (this->items.find(item.id) != this->items.end()) {
         return;
@@ -31,28 +34,28 @@ std::vector<std::string> MemoryService::query(Query query) {
 }
 
 void MemoryService::status() {
-    std::cout << "Status" << std::endl;
+    this->out << "Status" << std::endl;
 
-    std::cout << "\tItems: {";
+    this->out << "\tItems: {";
     for (auto it = this->items.begin(); it != this->items.end(); it++) {
         if (it != this->items.begin()) {
-            std::cout << ", ";
+            this->out << ", ";
         }
-        std::cout << it->first;
+        this->out << it->first;
     }
-    std::cout << "}" << std::endl;
+    this->out << "}" << std::endl;
 
-    std::cout << "\tToken Sets: {" << std::endl;
+    this->out << "\tToken Sets: {" << std::endl;
 
     for (auto it = this->tokens.begin(); it != this->tokens.end(); it++) {
-        std::cout << "\t\t" << it->first << ": {";
+        this->out << "\t\t" << it->first << ": {";
         for (auto id = it->second.begin(); id != it->second.end(); id++) {
             if (id != it->second.begin()) {
-                std::cout << ", ";
+                this->out << ", ";
             }
-            std::cout << *id;
+            this->out << *id;
         }
-        std::cout << "}" << std::endl;
+        this->out << "}" << std::endl;
     }
-    std::cout << "\t}" << std::endl;
+    this->out << "\t}" << std::endl;
 }

@@ -8,7 +8,7 @@
 int main() {
     auto queryParser = std::make_shared<QueryParser>();
 
-    auto memoryService = std::make_shared<MemoryService>();
+    auto memoryService = std::make_shared<MemoryService>(std::cout);
 
     auto controller = std::make_shared<Controller>(
         queryParser,
