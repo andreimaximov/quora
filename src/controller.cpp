@@ -1,4 +1,5 @@
 #include <vector>
+#include <iostream>
 #include "controller.h"
 #include "query.h"
 #include "split.h"
@@ -14,7 +15,8 @@ const std::string Controller::WQUERY_CMD = "WQUERY";
 
 Controller::Controller(
     std::shared_ptr<QueryParser> queryParser,
-    std::shared_ptr<MemoryService> memoryService) {
+    std::shared_ptr<MemoryService> memoryService,
+    std::ostream &os) : out(os) {
     this->queryParser = queryParser;
     this->memoryService = memoryService;
 }
@@ -63,4 +65,7 @@ void Controller::del(const std::string &command) {
 void Controller::query(const std::string &command) {
     Query q = this->queryParser->parse(command);
     std::vector<std::string> results = this->memoryService->query(q);
+    for (auto id : results) {
+        this->out << id << std::endl;
+    }
 }

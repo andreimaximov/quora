@@ -12,7 +12,8 @@ int main() {
 
     auto controller = std::make_shared<Controller>(
         queryParser,
-        memoryService);
+        memoryService,
+        std::cout);
 
     std::string line;
     std::getline(std::cin, line);

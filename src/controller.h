@@ -16,6 +16,8 @@ class Controller {
 
     std::shared_ptr<MemoryService> memoryService;
 
+    std::ostream &out;
+
     virtual void add(const std::string &command);
 
     virtual void del(const std::string &command);
@@ -33,7 +35,8 @@ class Controller {
 
     explicit Controller(
         std::shared_ptr<QueryParser> queryParser,
-        std::shared_ptr<MemoryService> memoryService);
+        std::shared_ptr<MemoryService> memoryService,
+        std::ostream &os); // NOLINT
 
     virtual void call(const std::string &command);
 };
