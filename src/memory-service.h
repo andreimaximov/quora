@@ -1,10 +1,10 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
 #include <iostream>
 #include "item.h"
 #include "query.h"
+#include "trie-set.h"
 
 #ifndef SRC_MEMORY_SERVICE_H_
 #define SRC_MEMORY_SERVICE_H_
@@ -16,7 +16,7 @@ struct ItemEntry {
 
 class MemoryService {
  private:
-    std::unordered_map<std::string, std::unordered_set<std::string>> tokens;
+    TrieSet<std::string> trie;
 
     std::unordered_map<std::string, ItemEntry> items;
 

@@ -3,6 +3,7 @@ CXXFLAGS := -std=c++11 -stdlib=libc++ -Wall
 
 SRCS := $(wildcard src/*.cpp)
 HDRS := $(wildcard src/*.h)
+ICPP := $(wildcard src/*icpp)
 OBJS := $(SRCS:.cpp=.o)
 
 TESTSRCS := $(wildcard tests/*.cpp)
@@ -11,7 +12,7 @@ TESTOBJS += $(filter-out src/main.o,$(OBJS))
 
 TARGET := typeahead_search
 
-all: $(TARGET)
+default: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) -o $(TARGET)
@@ -20,7 +21,7 @@ test: $(TESTOBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(TESTOBJS) -o run_tests
 	./run_tests
 
-%.o: %.cpp
+%.o: %.cpp $(HDRS) $(ICPP)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 lint:

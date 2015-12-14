@@ -1,4 +1,6 @@
 #include <vector>
+#include <algorithm>
+#include <ctype.h>
 #include "query-parser.h"
 #include "split.h"
 #include "item.h"
@@ -17,16 +19,18 @@ Query QueryParser::parseWQuery(const std::string &args) {
         ItemType type = itemtype(boostTokens[0]);
 
         if (type == ItemType::INVALID) {
-            IdBoost boost(boostTokens[0], factor);
-            q.idBoosts.push_back(boost);
+            q.idBoosts[boostTokens[0]] = factor;
         } else {
-            TypeBoost boost(type, factor);
-            q.typeBoosts.push_back(boost);
+            q.typeBoosts[type] = factor;
         }
     }
 
     q.tokens = std::move(tokens);
     q.tokens.erase(q.tokens.begin(), q.tokens.begin() + 2 + boosts);
+
+    for (std::string &str : q.tokens) {
+        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    }
 
     return q;
 }
@@ -37,6 +41,10 @@ Query QueryParser::parseQuery(const std::string &args) {
     Query q(std::stoi(tokens[0]));
     q.tokens = std::move(tokens);
     q.tokens.erase(q.tokens.begin());
+
+    for (std::string &str : q.tokens) {
+        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    }
 
     return q;
 }

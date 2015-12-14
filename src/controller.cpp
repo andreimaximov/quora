@@ -65,7 +65,8 @@ void Controller::del(const std::string &command) {
 void Controller::query(const std::string &command) {
     Query q = this->queryParser->parse(command);
     std::vector<std::string> results = this->memoryService->query(q);
-    for (auto id : results) {
-        this->out << id << std::endl;
+    for (std::string &id : results) {
+        this->out << id << " ";
     }
+    this->out << std::endl;
 }
