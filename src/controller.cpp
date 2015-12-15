@@ -5,13 +5,13 @@
 #include "split.h"
 #include "item.h"
 
-const std::string Controller::ADD_CMD = "ADD";
+const std::string Controller::CMD_ADD = "ADD";
 
-const std::string Controller::DEL_CMD = "DEL";
+const std::string Controller::CMD_DEL = "DEL";
 
-const std::string Controller::QUERY_CMD = "QUERY";
+const std::string Controller::CMD_QUERY = "QUERY";
 
-const std::string Controller::WQUERY_CMD = "WQUERY";
+const std::string Controller::CMD_WQUERY = "WQUERY";
 
 Controller::Controller(
     std::shared_ptr<QueryParser> queryParser,
@@ -22,20 +22,19 @@ Controller::Controller(
 }
 
 void Controller::call(const std::string &command) {
-    size_t i = command.find(' ');
-    if (i == std::string::npos) {
+    size_t space = command.find(' ');
+    if (space == std::string::npos) {
         throw std::invalid_argument("Could not parse command!");
     }
+    std::string action = command.substr(0, space);
 
-    std::string action = command.substr(0, i);
-
-    if (action == Controller::ADD_CMD) {
+    if (action == Controller::CMD_ADD) {
         this->add(command);
-    } else if (action == Controller::DEL_CMD) {
+    } else if (action == Controller::CMD_DEL) {
         this->del(command);
-    } else if (action == Controller::QUERY_CMD) {
+    } else if (action == Controller::CMD_QUERY) {
         this->query(command);
-    } else if (action == Controller::WQUERY_CMD) {
+    } else if (action == Controller::CMD_WQUERY) {
         this->query(command);
     } else {
         throw std::invalid_argument("Invalid command!");
@@ -64,8 +63,9 @@ void Controller::del(const std::string &command) {
 }
 
 void Controller::query(const std::string &command) {
-    Query q = this->queryParser->parse(command);
-    std::vector<std::string> results = this->memoryService->query(q);
+    Query query = this->queryParser->parse(command);
+    std::vector<std::string> results = this->memoryService->query(query);
+
     std::string space = "";
     for (std::string &id : results) {
         this->out << space << id;

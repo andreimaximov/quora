@@ -6,12 +6,21 @@
 
 class QueryParser {
  private:
-    Query parseWQuery(std::istream &stream); //NOLINT
+    void boost(std::istream &istream, Query &query); //NOLINT
 
-    Query parseQuery(std::istream &stream); //NOLINT
-
+    void buildTokens(std::istream &istream, Query &query); // NOLINT
  public:
-    virtual Query parse(const std::string &query);
+    enum Type {
+        QUERY, WQUERY
+    };
+
+    static const std::string TYPE_QUERY;
+
+    static const std::string TYPE_WQUERY;
+
+    Type type(const std::string &type);
+
+    Query parse(const std::string &command);
 };
 
 #endif  // SRC_QUERY_PARSER_H_

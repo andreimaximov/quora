@@ -1,71 +1,79 @@
-#include <vector>
+#include <string>
 #include <sstream>
 #include "query-parser.h"
-#include "split.h"
 #include "item.h"
 #include "trie.h"
 
-Query QueryParser::parseWQuery(std::istream &stream) {
+const std::string QueryParser::TYPE_QUERY = "QUERY";
+
+const std::string QueryParser::TYPE_WQUERY = "WQUERY";
+
+void QueryParser::boost(std::istream &istream, Query &query) {
     std::string token;
-
-    getline(stream, token, ' ');
-    Query q(std::stoi(token));
-
-    getline(stream, token, ' ');
-    int boosts = std::stoi(token);
+    getline(istream, token, ' ');
+    unsigned int boosts = std::stoul(token);
 
     std::string classifier;
-    for (size_t i = 2; i < 2 + boosts; i++) {
-        getline(stream, classifier, ':');
-        getline(stream, token, ' ');
+    for (unsigned int i = 0; i < boosts; i++) {
+        getline(istream, classifier, ':');
+        getline(istream, token, ' ');
         double factor = std::stod(token);
 
         ItemType type = itemtype(classifier);
 
         if (type == ItemType::INVALID) {
-            q.idBoosts[classifier] = factor;
+            query.idBoosts[classifier] = factor;
         } else {
-            q.typeBoosts[type] = factor;
+            query.typeBoosts[type] = factor;
         }
     }
-
-    Trie t;
-    while (getline(stream, token, ' ')) {
-        std::transform(token.begin(), token.end(), token.begin(), ::tolower);
-        t.insert(token);
-    }
-    q.tokens = t.tails();
-
-    return q;
 }
 
-Query QueryParser::parseQuery(std::istream &stream) {
+/**
+ * Optimizes the query body by ignoring tokens that are prefixes of other
+ * tokens.
+ *
+ * @param istream
+ * @param query
+ */
+void QueryParser::buildTokens(std::istream &istream, Query &query) {
+    Trie t;
     std::string token;
-
-    getline(stream, token, ' ');
-    Query q(std::stoi(token));
-
-    Trie t;
-    while (getline(stream, token, ' ')) {
+    while (getline(istream, token, ' ')) {
         std::transform(token.begin(), token.end(), token.begin(), ::tolower);
         t.insert(token);
     }
-    q.tokens = t.tails();
-
-    return q;
+    query.tokens = t.tails();
 }
 
-Query QueryParser::parse(const std::string &query) {
-    std::stringstream stream(query);
-
-    std::string type;
-    getline(stream, type, ' ');
-
-    if (type.compare("QUERY") == 0) {
-        return this->parseQuery(stream);
-    } else if (type.compare("WQUERY") == 0) {
-        return this->parseWQuery(stream);
-    } else {
-        throw std::invalid_argument("Invalid query!");
+QueryParser::Type QueryParser::type(const std::string &type) {
+    if (type == QueryParser::TYPE_QUERY) {
+        return QueryParser::Type::QUERY;
+    } else if (type == QueryParser::TYPE_WQUERY) {
+        return QueryParser::Type::WQUERY;
     }
+    throw std::invalid_argument("Invalid query type!");
+}
+
+Query QueryParser::parse(const std::string &command) {
+    std::stringstream qstream(command);
+
+    // Extract the query type.
+    std::string token;
+    getline(qstream, token, ' ');
+    QueryParser::Type type = this->type(token);
+
+    // Extract the number of results for this query.
+    getline(qstream, token, ' ');
+    Query query(std::stoi(token));
+
+    // Apply boosts if needed.
+    if (type == QueryParser::Type::WQUERY) {
+        this->boost(qstream, query);
+    }
+
+    // Parse the query body.
+    this->buildTokens(qstream, query);
+
+    return query;
 }

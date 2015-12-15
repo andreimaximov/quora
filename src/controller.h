@@ -6,10 +6,6 @@
 #ifndef SRC_CONTROLLER_H_
 #define SRC_CONTROLLER_H_
 
-enum COMMAND {
-    ADD, DEL, QUERY, WQUERY
-};
-
 class Controller {
  private:
     std::shared_ptr<QueryParser> queryParser;
@@ -25,13 +21,13 @@ class Controller {
     void query(const std::string &command);
 
  public:
-    static const std::string ADD_CMD;
+    static const std::string CMD_ADD;
 
-    static const std::string DEL_CMD;
+    static const std::string CMD_DEL;
 
-    static const std::string QUERY_CMD;
+    static const std::string CMD_QUERY;
 
-    static const std::string WQUERY_CMD;
+    static const std::string CMD_WQUERY;
 
     explicit Controller(
         std::shared_ptr<QueryParser> queryParser,
