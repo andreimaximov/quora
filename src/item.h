@@ -8,10 +8,13 @@ enum ItemType {
 };
 
 struct Item {
+    static int64_t count;
+
     ItemType type;
     std::string id;
     double score;
     std::string data;
+    int64_t time;
 };
 
 const std::string USER_TYPE = "user";

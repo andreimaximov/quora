@@ -7,8 +7,16 @@
 #include "memory-service.h"
 #include "split.h"
 
-template <class T>
-using rp_queue = std::priority_queue<T, std::vector<T>, std::greater<T>>;
+bool MemoryService::ItemComparator::operator()(
+    const Item &item1,
+    const Item &item2) const {
+    if (item1.score < item2.score) {
+        return false;
+    } else if (item1.score == item2.score) {
+        return item1.time > item2.time;
+    }
+    return true;
+}
 
 MemoryService::MemoryService(std::ostream &os) : out(os) {
 }
@@ -68,7 +76,10 @@ std::vector<std::string> MemoryService::query(Query query) {
         return std::vector<std::string>(0);
     }
 
-    rp_queue<std::pair<std::string, double>> results_queue;
+    std::priority_queue<
+        Item,
+        std::vector<Item>,
+        MemoryService::ItemComparator> results_queue;
     std::unordered_set<std::string> results_set;
     std::stack<TrieSet<std::string>::Node*> stack;
     stack.push(node);
@@ -96,7 +107,7 @@ std::vector<std::string> MemoryService::query(Query query) {
                     score *= query.idBoosts[str];
                 }
 
-                results_queue.push(std::make_pair(str, score));
+                results_queue.push(itemEntry.item);
                 if (results_queue.size() > query.results) {
                     results_queue.pop();
                 }
@@ -110,7 +121,7 @@ std::vector<std::string> MemoryService::query(Query query) {
     std::vector<std::string> results(results_queue.size());
     size_t i = results.size();
     while ((i--) > 0) {
-        results[i] = results_queue.top().first;
+        results[i] = results_queue.top().id;
         results_queue.pop();
     }
 

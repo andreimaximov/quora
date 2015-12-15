@@ -1,5 +1,7 @@
 #include "item.h"
 
+int64_t Item::count = 0;
+
 ItemType itemtype(const std::string &str) {
     if (str.compare(USER_TYPE)) {
         return ItemType::USER;

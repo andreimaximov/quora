@@ -51,7 +51,8 @@ void Controller::add(const std::string &command) {
         type,
         tokens[2],
         score,
-        tokens[4]
+        tokens[4],
+        Item::count++
     };
 
     this->memoryService->add(item);

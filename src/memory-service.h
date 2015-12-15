@@ -18,6 +18,11 @@ struct ItemEntry {
 
 class MemoryService {
  private:
+    class ItemComparator {
+     public:
+        bool operator()(const Item &item1, const Item &item2) const;
+    };
+
     TrieSet<std::string> trieSet;
 
     std::unordered_map<std::string, ItemEntry> items;
