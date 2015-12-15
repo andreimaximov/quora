@@ -77,11 +77,12 @@ std::vector<std::string> MemoryService::query(Query query) {
         auto node = stack.top();
         stack.pop();
         for (const std::string &str : node->elements) {
+            if (results_set.find(str) != results_set.end()) {
+                continue;
+            }
+
             ItemEntry &itemEntry = this->items[str];
             if (this->match(itemEntry, query)) {
-                if (results_set.find(str) != results_set.end()) {
-                    continue;
-                }
                 results_set.insert(str);
 
                 double score = itemEntry.item.score;
