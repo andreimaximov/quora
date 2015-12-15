@@ -7,12 +7,12 @@
 #define SRC_QUERY_H_
 
 struct Query {
-    unsigned int results;
+    size_t results;
     std::vector<std::string> tokens;
     std::unordered_map<ItemType, double, std::hash<int>> typeBoosts;
     std::unordered_map<std::string, double> idBoosts;
 
-    explicit Query(unsigned int results) {
+    explicit Query(size_t results) {
         this->results = results;
     }
 };

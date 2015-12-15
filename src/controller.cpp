@@ -29,13 +29,13 @@ void Controller::call(const std::string &command) {
 
     std::string action = command.substr(0, i);
 
-    if (action.compare(Controller::ADD_CMD) == 0) {
+    if (action == Controller::ADD_CMD) {
         this->add(command);
-    } else if (action.compare(Controller::DEL_CMD) == 0) {
+    } else if (action == Controller::DEL_CMD) {
         this->del(command);
-    } else if (action.compare(Controller::QUERY_CMD) == 0) {
+    } else if (action == Controller::QUERY_CMD) {
         this->query(command);
-    } else if (action.compare(Controller::WQUERY_CMD) == 0) {
+    } else if (action == Controller::WQUERY_CMD) {
         this->query(command);
     } else {
         throw std::invalid_argument("Invalid command!");

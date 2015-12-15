@@ -1,4 +1,4 @@
-#include <string>
+#include <istream>
 #include "query.h"
 
 #ifndef SRC_QUERY_PARSER_H_
@@ -6,9 +6,9 @@
 
 class QueryParser {
  private:
-    virtual Query parseWQuery(const std::string &args);
+    Query parseWQuery(std::istream &stream); //NOLINT
 
-    virtual Query parseQuery(const std::string &args);
+    Query parseQuery(std::istream &stream); //NOLINT
 
  public:
     virtual Query parse(const std::string &query);

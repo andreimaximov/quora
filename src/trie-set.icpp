@@ -1,6 +1,0 @@
-#include "trie-set.h"
-
-template <class E>
-size_t TrieSet<E>::size() {
-    return this->_size;
-}

@@ -18,11 +18,11 @@ class Controller {
 
     std::ostream &out;
 
-    virtual void add(const std::string &command);
+    void add(const std::string &command);
 
-    virtual void del(const std::string &command);
+    void del(const std::string &command);
 
-    virtual void query(const std::string &command);
+    void query(const std::string &command);
 
  public:
     static const std::string ADD_CMD;
@@ -38,7 +38,7 @@ class Controller {
         std::shared_ptr<MemoryService> memoryService,
         std::ostream &os); // NOLINT
 
-    virtual void call(const std::string &command);
+    void call(const std::string &command);
 };
 
 #endif  // SRC_CONTROLLER_H_

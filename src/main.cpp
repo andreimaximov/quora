@@ -21,7 +21,6 @@ int main() {
 
     while (queries > 0) {
         std::getline(std::cin, line);
-        std::cout << line << std::endl;
         controller->call(line);
         queries--;
     }

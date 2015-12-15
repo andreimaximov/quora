@@ -1,63 +1,70 @@
 #include <vector>
-#include <algorithm>
-#include <ctype.h>
+#include <sstream>
 #include "query-parser.h"
 #include "split.h"
 #include "item.h"
+#include "trie.h"
 
-Query QueryParser::parseWQuery(const std::string &args) {
-    std::vector<std::string> tokens = split(args, ' ');
+Query QueryParser::parseWQuery(std::istream &stream) {
+    std::string token;
 
-    Query q(std::stoi(tokens[0]));
+    getline(stream, token, ' ');
+    Query q(std::stoi(token));
 
-    int boosts = std::stoi(tokens[1]);
+    getline(stream, token, ' ');
+    int boosts = std::stoi(token);
 
+    std::string classifier;
     for (size_t i = 2; i < 2 + boosts; i++) {
-        std::vector<std::string> boostTokens = split(tokens[i], ':');
-        double factor = std::stod(boostTokens[1]);
+        getline(stream, classifier, ':');
+        getline(stream, token, ' ');
+        double factor = std::stod(token);
 
-        ItemType type = itemtype(boostTokens[0]);
+        ItemType type = itemtype(classifier);
 
         if (type == ItemType::INVALID) {
-            q.idBoosts[boostTokens[0]] = factor;
+            q.idBoosts[classifier] = factor;
         } else {
             q.typeBoosts[type] = factor;
         }
     }
 
-    q.tokens = std::move(tokens);
-    q.tokens.erase(q.tokens.begin(), q.tokens.begin() + 2 + boosts);
-
-    for (std::string &str : q.tokens) {
-        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    Trie t;
+    while (getline(stream, token, ' ')) {
+        std::transform(token.begin(), token.end(), token.begin(), ::tolower);
+        t.insert(token);
     }
+    q.tokens = t.tails();
 
     return q;
 }
 
-Query QueryParser::parseQuery(const std::string &args) {
-    std::vector<std::string> tokens = split(args, ' ');
+Query QueryParser::parseQuery(std::istream &stream) {
+    std::string token;
 
-    Query q(std::stoi(tokens[0]));
-    q.tokens = std::move(tokens);
-    q.tokens.erase(q.tokens.begin());
+    getline(stream, token, ' ');
+    Query q(std::stoi(token));
 
-    for (std::string &str : q.tokens) {
-        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    Trie t;
+    while (getline(stream, token, ' ')) {
+        std::transform(token.begin(), token.end(), token.begin(), ::tolower);
+        t.insert(token);
     }
+    q.tokens = t.tails();
 
     return q;
 }
 
 Query QueryParser::parse(const std::string &query) {
-    size_t space = query.find(' ');
-    std::string type = query.substr(0, space);
-    std::string args = query.substr(space + 1, std::string::npos);
+    std::stringstream stream(query);
+
+    std::string type;
+    getline(stream, type, ' ');
 
     if (type.compare("QUERY") == 0) {
-        return this->parseQuery(args);
+        return this->parseQuery(stream);
     } else if (type.compare("WQUERY") == 0) {
-        return this->parseWQuery(args);
+        return this->parseWQuery(stream);
     } else {
         throw std::invalid_argument("Invalid query!");
     }

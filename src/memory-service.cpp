@@ -2,12 +2,13 @@
 #include <vector>
 #include <iostream>
 #include <unordered_set>
-#include <unordered_map>
-#include <algorithm>
-#include <ctype.h>
+#include <queue>
+#include <stack>
 #include "memory-service.h"
 #include "split.h"
-#include "top-n.h"
+
+template <class T>
+using rp_queue = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 
 MemoryService::MemoryService(std::ostream &os) : out(os) {
 }
@@ -17,20 +18,21 @@ void MemoryService::add(Item item) {
         return;
     }
 
+    std::transform(
+        item.data.begin(),
+        item.data.end(),
+        item.data.begin(),
+        ::tolower);
+
+    ItemEntry entry {item};
+
     std::vector<std::string> tokens = split(item.data, ' ');
-    for (std::string &str : tokens) {
-        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    for (const std::string &str : tokens) {
+        entry.trie.insert(str);
+        this->trieSet.insert(str, item.id);
     }
 
-    ItemEntry entry {
-        item,
-        tokens
-    };
-    this->items[item.id] = entry;
-
-    for (std::string &word : entry.tokens) {
-        this->trie.add(word, item.id);
-    }
+    this->items[item.id] = std::move(entry);
 }
 
 void MemoryService::del(const std::string &id) {
@@ -40,47 +42,75 @@ void MemoryService::del(const std::string &id) {
 
     ItemEntry &entry = this->items[id];
 
-    for (std::string &word : entry.tokens) {
-        this->trie.erase(word, id);
+    std::vector<std::string> tokens = split(entry.item.data, ' ');
+    for (std::string &word : tokens) {
+        this->trieSet.erase(word, id);
     }
 
     this->items.erase(id);
 }
 
+bool MemoryService::match(const ItemEntry &itemEntry, const Query &query) {
+    for (const std::string &token : query.tokens) {
+        if (!itemEntry.trie.contains(token)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::vector<std::string> MemoryService::query(Query query) {
-    std::unordered_map<std::string, int> counts;
-    for (std::string &token : query.tokens) {
-        std::unordered_set<std::string> ids = this->trie.get_prefix_set(token);
-        for (auto &id : ids) {
-            if (counts.find(id) == counts.end()) {
-                counts[id] = 0;
+    TrieSet<std::string>::Node *node = this->trieSet.get_prefix_node(
+        query.tokens.back());
+    query.tokens.pop_back();
+
+    if (node == nullptr) {
+        return std::vector<std::string>(0);
+    }
+
+    rp_queue<std::pair<std::string, double>> results_queue;
+    std::unordered_set<std::string> results_set;
+    std::stack<TrieSet<std::string>::Node*> stack;
+    stack.push(node);
+
+    while (stack.size() > 0) {
+        auto node = stack.top();
+        stack.pop();
+        for (const std::string &str : node->elements) {
+            ItemEntry &itemEntry = this->items[str];
+            if (this->match(itemEntry, query)) {
+                if (results_set.find(str) != results_set.end()) {
+                    continue;
+                }
+                results_set.insert(str);
+
+                double score = itemEntry.item.score;
+
+                ItemType type = itemEntry.item.type;
+                if (query.typeBoosts.find(type) != query.typeBoosts.end()) {
+                    score *= query.typeBoosts[type];
+                }
+
+                if (query.idBoosts.find(str) != query.idBoosts.end()) {
+                    score *= query.idBoosts[str];
+                }
+
+                results_queue.push(std::make_pair(str, score));
+                if (results_queue.size() > query.results) {
+                    results_queue.pop();
+                }
             }
-            counts[id] += 1;
+        }
+        for (const auto &entry : node->children) {
+            stack.push(entry.second);
         }
     }
 
-    std::vector<std::pair<std::string, double>> candidates;
-
-    for (auto &pair : counts) {
-        if (pair.second < query.tokens.size()) {
-            continue;
-        }
-        Item &item = this->items[pair.first].item;
-        double score = item.score;
-        if (query.typeBoosts.find(item.type) != query.typeBoosts.end()) {
-            score *= query.typeBoosts[item.type];
-        }
-        if (query.idBoosts.find(item.id) != query.idBoosts.end()) {
-            score *= query.idBoosts[item.id];
-        }
-        candidates.push_back(std::make_pair(item.id, score));
-    }
-
-    candidates = std::move(topn(candidates, query.results));
-
-    std::vector<std::string> results;
-    for (auto it = candidates.rbegin(); it != candidates.rend(); it++) {
-        results.push_back(it->first);
+    std::vector<std::string> results(results_queue.size());
+    size_t i = results.size();
+    while ((i--) > 0) {
+        results[i] = results_queue.top().first;
+        results_queue.pop();
     }
 
     return results;
@@ -97,8 +127,4 @@ void MemoryService::status() {
         this->out << it->first;
     }
     this->out << "}" << std::endl;
-
-    this->out << "\tTrie Size: " << this->trie.size() << std::endl;
-
-    this->out << "\tTrie: " << this->trie << std::endl;
 }
