@@ -16,7 +16,7 @@ class TrieMap {
         std::unordered_map<char, Node> children;
     };
 
-    Node* get_prefix_node(const std::string &str) {
+    Node* getPrefixNode(const std::string &str) {
         size_t i = 0;
         Node *node = &(this->root);
         while (i < str.length()) {
@@ -44,7 +44,7 @@ class TrieMap {
     }
 
     void erase(const std::string &str, const E &val) {
-        Node *node = this->get_prefix_node(str);
+        Node *node = this->getPrefixNode(str);
         if (node != nullptr) {
             node->elements.erase(val);
         }
@@ -52,7 +52,7 @@ class TrieMap {
 
     template <class F>
     void traverse(F &f, const std::string &str = "") { // NOLINT
-        Node *root = this->get_prefix_node(str);
+        Node *root = this->getPrefixNode(str);
         if (root == nullptr) {
             return;
         }
