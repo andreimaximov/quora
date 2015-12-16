@@ -125,8 +125,11 @@ std::vector<std::string> MemoryService::query(Query query) {
         return results;
     }
 
-    std::string bucket = query.tokens.back();
-    query.tokens.pop_back();
+    std::string bucket = "";
+    if (query.tokens.size() > 0) {
+        bucket = query.tokens.back();
+        query.tokens.pop_back();
+    }
 
     MemoryService::Traverser traverser(&query, this);
     this->prefixes.traverse(traverser, bucket);

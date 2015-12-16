@@ -1,7 +1,6 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
-#include <ostream>
 #include <stack>
 
 #ifndef SRC_TRIE_MAP_H_
