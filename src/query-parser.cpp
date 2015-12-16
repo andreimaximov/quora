@@ -39,7 +39,7 @@ void QueryParser::boost(std::istream &istream, Query &query) {
 void QueryParser::buildTokens(std::istream &istream, Query &query) {
     Trie t;
     std::string token;
-    while (getline(istream, token, ' ')) {
+    while (istream >> token) {
         std::transform(token.begin(), token.end(), token.begin(), ::tolower);
         t.insert(token);
     }
