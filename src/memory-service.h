@@ -1,40 +1,74 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <iostream>
+#include <unordered_set>
+#include <queue>
+#include <ostream>
 #include "item.h"
 #include "query.h"
-#include "trie-set.h"
+#include "trie-map.h"
 #include "trie.h"
 
 #ifndef SRC_MEMORY_SERVICE_H_
 #define SRC_MEMORY_SERVICE_H_
 
-struct ItemEntry {
-    Item item;
-
-    Trie trie;
-};
-
 class MemoryService {
  private:
-    class ItemComparator {
+    class Entry {
      public:
-        bool operator()(const Item &item1, const Item &item2) const;
+        std::string id;
+
+        Item::Type type;
+
+        double score;
+
+        uint64_t time;
+
+        Trie trie;
     };
 
-    TrieSet<std::string> trieSet;
+    class Result {
+     public:
+        std::string id;
 
-    std::unordered_map<std::string, ItemEntry> items;
+        double score;
+
+        uint64_t time;
+
+        bool operator<(const Result &other) const;
+    };
+
+    class Traverser {
+     private:
+        Query *query;
+
+        MemoryService *memoryService;
+
+        std::unordered_set<std::string> encountered;
+
+        std::priority_queue<Result> heap;
+     public:
+        Traverser(Query *query, MemoryService *memoryService);
+
+        bool matches(const Entry &entry);
+
+        double score(const Entry &entry);
+
+        void operator()(const std::string &candidate);
+
+        std::vector<std::string> results();
+    };
+
+    TrieMap<std::string> prefixes;
+
+    std::unordered_map<std::string, Entry> items;
 
     std::ostream &out;
-
-    bool match(const ItemEntry &itemEntry, const Query &query);
 
  public:
     explicit MemoryService(std::ostream &os); // NOLINT
 
-    void add(Item item);
+    void add(const Item &item);
 
     void del(const std::string &id);
 

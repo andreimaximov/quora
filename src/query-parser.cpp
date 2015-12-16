@@ -19,9 +19,9 @@ void QueryParser::boost(std::istream &istream, Query &query) {
         getline(istream, token, ' ');
         double factor = std::stod(token);
 
-        ItemType type = itemtype(classifier);
+        Item::Type type = Item::stotype(classifier);
 
-        if (type == ItemType::INVALID) {
+        if (type == Item::Type::INVALID) {
             query.idBoosts[classifier] = factor;
         } else {
             query.typeBoosts[type] = factor;

@@ -1,17 +1,24 @@
 #include "item.h"
 
-int64_t Item::count = 0;
+uint64_t Item::count = 0;
 
-ItemType itemtype(const std::string &str) {
-    if (str.compare(USER_TYPE)) {
-        return ItemType::USER;
-    } else if (str.compare(TOPIC_TYPE)) {
-        return ItemType::TOPIC;
-    } else if (str.compare(QUESTION_TYPE)) {
-        return ItemType::QUESTION;
-    } else if (str.compare(BOARD_TYPE)) {
-        return ItemType::BOARD;
+const std::string Item::TYPE_USER = "user";
+
+const std::string Item::TYPE_TOPIC = "topic";
+
+const std::string Item::TYPE_QUESTION = "question";
+
+const std::string Item::TYPE_BOARD = "board";
+
+Item::Type Item::stotype(const std::string &str) {
+    if (str == Item::TYPE_USER) {
+        return Item::Type::USER;
+    } else if (str == Item::TYPE_TOPIC) {
+        return Item::Type::TOPIC;
+    } else if (str == Item::TYPE_QUESTION) {
+        return Item::Type::QUESTION;
+    } else if (str == Item::TYPE_BOARD) {
+        return Item::Type::BOARD;
     }
-
-    throw new std::invalid_argument("Invalid ItemType!");
+    return Item::Type::INVALID;
 }
