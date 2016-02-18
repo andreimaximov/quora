@@ -11,14 +11,14 @@ bool MemoryService::Result::operator<(const Result &other) const {
 }
 
 MemoryService::Traverser::Traverser(
-    Query *query,
-    MemoryService *memoryService) {
-    this->query = query;
-    this->memoryService = memoryService;
+    const Query &query,
+    const MemoryService &memoryService) :
+    query(query),
+    memoryService(memoryService) {
 }
 
 bool MemoryService::Traverser::matches(const Entry &entry) {
-    for (const std::string &token : this->query->tokens) {
+    for (const std::string &token : this->query.tokens) {
         if (!entry.trie.contains(token)) {
             return false;
         }
@@ -26,45 +26,47 @@ bool MemoryService::Traverser::matches(const Entry &entry) {
     return true;
 }
 
-double MemoryService::Traverser::score(const Entry &entry) {
-    double score = entry.score;
+float MemoryService::Traverser::score(const Entry &entry) {
+    float score = entry.score;
 
-    auto tboost = this->query->typeBoosts.find(entry.type);
-    if (tboost != this->query->typeBoosts.end()) {
-        score *= tboost->second;
+    auto typeIter = this->query.typeBoosts.find(entry.type);
+    if (typeIter != this->query.typeBoosts.end()) {
+        score *= typeIter->second;
     }
 
-    auto iboost = this->query->idBoosts.find(entry.id);
-    if (iboost != this->query->idBoosts.end()) {
-        score *= iboost->second;
+    auto idBoost = this->query.idBoosts.find(entry.id);
+    if (idBoost != this->query.idBoosts.end()) {
+        score *= idBoost->second;
     }
 
     return score;
 }
 
 void MemoryService::Traverser::operator()(const std::string &candidate) {
-    if (this->encountered.find(candidate) != this->encountered.end()) {
+    const auto iter = this->memoryService.items.find(candidate);
+    if (iter == this->memoryService.items.end()) {
         return;
     }
 
-    this->encountered.insert(candidate);
-
-    MemoryService::Entry &entry = this->memoryService->items[candidate];
+    const MemoryService::Entry &entry = iter->second;
     if (!this->matches(entry)) {
         return;
     }
 
-    double score = this->score(entry);
+    if (this->cache.find(candidate) != this->cache.end()) {
+        return;
+    }
+    this->cache.emplace(candidate);
 
-    Result result {candidate, score, entry.time};
+    Result result {candidate, this->score(entry), entry.time};
 
-    if (this->heap.size() >= this->query->results &&
+    if (this->heap.size() >= this->query.results &&
         this->heap.top() < result) {
         return;
     }
 
     this->heap.push(std::move(result));
-    if (this->heap.size() > this->query->results) {
+    if (this->heap.size() > this->query.results) {
         this->heap.pop();
     }
 }
@@ -81,6 +83,8 @@ std::vector<std::string> MemoryService::Traverser::results() {
     return results;
 }
 
+uint32_t MemoryService::time = 0;
+
 MemoryService::MemoryService(std::ostream &os) : out(os) {
 }
 
@@ -89,7 +93,7 @@ void MemoryService::add(const Item &item) {
         return;
     }
 
-    MemoryService::Entry entry {item.id, item.type, item.score, item.time};
+    Entry entry {item.id, item.type, item.score, MemoryService::time++};
 
     std::string body = item.body;
     std::transform(body.begin(), body.end(), body.begin(), ::tolower);
@@ -120,9 +124,8 @@ void MemoryService::del(const std::string &id) {
 }
 
 std::vector<std::string> MemoryService::query(Query query) {
-    std::vector<std::string> results;
     if (query.results == 0) {
-        return results;
+        return std::vector<std::string>();
     }
 
     std::string bucket = "";
@@ -131,8 +134,8 @@ std::vector<std::string> MemoryService::query(Query query) {
         query.tokens.pop_back();
     }
 
-    MemoryService::Traverser traverser(&query, this);
-    this->prefixes.traverse(traverser, bucket);
+    MemoryService::Traverser traverser(query, *this);
+    this->prefixes.each(traverser, bucket);
 
     return traverser.results();
 }

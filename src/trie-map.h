@@ -6,69 +6,59 @@
 #ifndef SRC_TRIE_MAP_H_
 #define SRC_TRIE_MAP_H_
 
-template <class E>
+template <class V>
 class TrieMap {
  private:
     struct Node {
-        std::unordered_set<E> elements;
+        std::unordered_set<V> values;
 
         std::unordered_map<char, Node> children;
     };
 
-    Node* getPrefixNode(const std::string &str) {
-        size_t i = 0;
+    Node* at(const std::string &key) {
         Node *node = &(this->root);
-        while (i < str.length()) {
-            char c = str.at(i);
-            auto found = node->children.find(c);
+        for (const char &c : key) {auto found = node->children.find(c);
             if (found == node->children.end()) {
                 return nullptr;
             }
             node = &(found->second);
-            i++;
         }
         return node;
     }
 
- public:
-    void insert(const std::string &str, const E &val) {
-        Node *node = &(this->root);
-        size_t i = 0;
-        while (i < str.length()) {
-            char c = str.at(i);
-            node = &(node->children[c]);
-            i++;
+    template <class F>
+    void each(F &f, const Node &root) { // NOLINT
+        for (const V &value : root.values) {
+            f(value);
         }
-        node->elements.insert(val);
+        for (const auto &it : root.children) {
+            this->each(f, it.second);
+        }
     }
 
-    void erase(const std::string &str, const E &val) {
-        Node *node = this->getPrefixNode(str);
+ public:
+    void insert(const std::string &key, const V &value) {
+        Node *node = &(this->root);
+        for (const char &c : key) {
+            node = &(node->children[c]);
+        }
+        node->values.insert(value);
+    }
+
+    void erase(const std::string &key, const V &value) {
+        Node *node = this->at(key);
         if (node != nullptr) {
-            node->elements.erase(val);
+            node->values.erase(value);
         }
     }
 
     template <class F>
-    void traverse(F &f, const std::string &str = "") { // NOLINT
-        Node *root = this->getPrefixNode(str);
+    void each(F &f, const std::string &key = "") { // NOLINT
+        Node *root = this->at(key);
         if (root == nullptr) {
             return;
         }
-
-        std::stack<Node*> nodes;
-        nodes.push(root);
-
-        while (nodes.size() > 0) {
-            Node *node = nodes.top();
-            nodes.pop();
-            for (const E &elem : node->elements) {
-                f(elem);
-            }
-            for (auto &pair : node->children) {
-                nodes.push(&pair.second);
-            }
-        }
+        this->each(f, *root);
     }
 
  private:

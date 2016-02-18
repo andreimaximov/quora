@@ -4,9 +4,6 @@
 #define SRC_ITEM_H_
 
 class Item {
- private:
-    static uint64_t count;
-
  public:
     enum Type {
         USER, TOPIC, QUESTION, BOARD, INVALID
@@ -26,18 +23,15 @@ class Item {
 
     std::string id;
 
-    double score;
+    float score;
 
     std::string body;
-
-    uint64_t time;
 
     Item(Type type, std::string id, double score, std::string body) :
         type(type),
         id(id),
         score(score),
         body(body) {
-        this->time = Item::count++;
     }
 };
 

@@ -20,9 +20,9 @@ class MemoryService {
 
         Item::Type type;
 
-        double score;
+        float score;
 
-        uint64_t time;
+        uint32_t time;
 
         Trie trie;
     };
@@ -31,28 +31,28 @@ class MemoryService {
      public:
         std::string id;
 
-        double score;
+        float score;
 
-        uint64_t time;
+        uint32_t time;
 
         bool operator<(const Result &other) const;
     };
 
     class Traverser {
      private:
-        Query *query;
+        const Query &query;
 
-        MemoryService *memoryService;
-
-        std::unordered_set<std::string> encountered;
+        const MemoryService &memoryService;
 
         std::priority_queue<Result> heap;
+
+        std::unordered_set<std::string> cache;
      public:
-        Traverser(Query *query, MemoryService *memoryService);
+        Traverser(const Query &query, const MemoryService &memoryService);
 
         bool matches(const Entry &entry);
 
-        double score(const Entry &entry);
+        float score(const Entry &entry);
 
         void operator()(const std::string &candidate);
 
@@ -64,6 +64,8 @@ class MemoryService {
     std::unordered_map<std::string, Entry> items;
 
     std::ostream &out;
+
+    static uint32_t time;
 
  public:
     explicit MemoryService(std::ostream &os); // NOLINT

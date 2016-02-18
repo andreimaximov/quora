@@ -2,27 +2,21 @@
 #include "trie.h"
 
 void Trie::insert(const std::string &str) {
-    size_t i = 0;
     Node *node = &(this->root);
-    while (i < str.length()) {
-        char c = str.at(i);
+    for (const char &c : str) {
         node = &(node->children[c]);
-        i++;
     }
-    this->depth = std::max(this->depth, i);
+    this->depth = std::max(this->depth, str.length());
 }
 
 bool Trie::contains(const std::string &str) const {
-    size_t i = 0;
     const Node *node = &(this->root);
-    while (i < str.length()) {
-        char c = str.at(i);
-        auto found = node->children.find(c);
-        if (found == node->children.end()) {
+    for (const char &c : str) {
+        auto iter = node->children.find(c);
+        if (iter == node->children.end()) {
             return false;
         }
-        node = &(found->second);
-        i++;
+        node = &(iter->second);
     }
     return true;
 }
@@ -32,14 +26,13 @@ void Trie::tails(
     std::vector<std::string> &tails,
     std::vector<char> &chars,
     size_t i) const {
-    if (node.children.size() == 0) {
-        std::string str(chars.begin(), chars.begin() + i);
-        tails.push_back(std::move(str));
+    if (node.children.empty()) {
+        tails.emplace_back(chars.begin(), chars.begin() + i);
         return;
     }
-    for (auto &pair : node.children) {
-        chars[i] = pair.first;
-        this->tails(pair.second, tails, chars, i + 1);
+    for (const auto &iter : node.children) {
+        chars[i] = iter.first;
+        this->tails(iter.second, tails, chars, i + 1);
     }
 }
 

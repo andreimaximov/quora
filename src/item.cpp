@@ -1,7 +1,5 @@
 #include "item.h"
 
-uint64_t Item::count = 0;
-
 const std::string Item::TYPE_USER = "user";
 
 const std::string Item::TYPE_TOPIC = "topic";
