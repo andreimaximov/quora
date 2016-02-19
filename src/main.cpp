@@ -6,18 +6,18 @@
 #include "controller.h"
 
 int main() {
-    auto queryParser = std::make_shared<QueryParser>();
-    auto memoryService = std::make_shared<MemoryService>(std::cout);
-    Controller controller(queryParser, memoryService, std::cout);
+  auto queryParser = std::make_shared<QueryParser>();
+  auto memoryService = std::make_shared<MemoryService>(std::cout);
+  Controller controller(queryParser, memoryService, std::cout);
 
-    std::string line;
+  std::string line;
+  std::getline(std::cin, line);
+  int queries = std::stoi(line);
+
+  while (queries > 0) {
     std::getline(std::cin, line);
-    int queries = std::stoi(line);
-
-    while (queries > 0) {
-        std::getline(std::cin, line);
-        controller.call(line);
-        queries--;
-    }
-    return 0;
+    controller.call(line);
+    queries--;
+  }
+  return 0;
 }

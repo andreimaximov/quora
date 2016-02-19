@@ -7,26 +7,26 @@
 
 class Trie {
  public:
-    void insert(const std::string &str);
+  void insert(const std::string &str);
 
-    bool contains(const std::string &str) const;
+  bool contains(const std::string &str) const;
 
-    std::vector<std::string> tails() const;
+  std::vector<std::string> tails() const;
 
  private:
-    struct Node {
-        std::unordered_map<char, Node> children;
-    };
+  struct Node {
+    std::unordered_map<char, Node> children;
+  };
 
-    Node root;
+  Node root;
 
-    size_t depth = 0;
+  size_t depth = 0;
 
-    void tails(
-        const Node &node,
-        std::vector<std::string> &tails, // NOLINT
-        std::vector<char> &chars, // NOLINT
-        size_t i) const;
+  void tails(
+    const Node &node,
+    std::vector<std::string> &tails, // NOLINT
+    std::vector<char> &chars, // NOLINT
+    size_t i) const;
 };
 
 #endif  // SRC_TRIE_H_

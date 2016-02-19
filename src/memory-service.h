@@ -14,69 +14,73 @@
 
 class MemoryService {
  private:
-    class Entry {
-     public:
-        std::string id;
+  class Entry {
+   public:
+    std::string id;
 
-        Item::Type type;
+    Item::Type type;
 
-        float score;
+    float score;
 
-        uint32_t time;
+    uint32_t time;
 
-        Trie trie;
-    };
+    Trie trie;
+  };
 
-    class Result {
-     public:
-        std::string id;
+  class Result {
+   public:
+    std::string id;
 
-        float score;
+    float score;
 
-        uint32_t time;
+    uint32_t time;
 
-        bool operator<(const Result &other) const;
-    };
+    bool operator<(const Result &other) const;
+  };
 
-    class Traverser {
-     private:
-        const Query &query;
+  class Searcher {
+   private:
+    const Query &query;
 
-        const MemoryService &memoryService;
+    const MemoryService &memoryService;
 
-        std::priority_queue<Result> heap;
+    std::priority_queue<Result> heap;
 
-        std::unordered_set<std::string> cache;
-     public:
-        Traverser(const Query &query, const MemoryService &memoryService);
+    std::unordered_set<std::string> cache;
+   public:
+    Searcher(const Query &query, const MemoryService &memoryService);
 
-        bool matches(const Entry &entry);
+    void init();
 
-        float score(const Entry &entry);
+    bool matches(const Entry &entry);
 
-        void operator()(const std::string &candidate);
+    float boost(const Entry &entry);
 
-        std::vector<std::string> results();
-    };
+    void operator()(const std::string &id);
 
-    TrieMap<std::string> prefixes;
+    void process(const std::string &id, float boost);
 
-    std::unordered_map<std::string, Entry> items;
+    std::vector<std::string> results();
+  };
 
-    std::ostream &out;
+  TrieMap<std::string> prefixes;
 
-    static uint32_t time;
+  std::unordered_map<std::string, Entry> items;
+
+  std::ostream &out;
+
+  static uint32_t time;
 
  public:
-    explicit MemoryService(std::ostream &os); // NOLINT
+  explicit MemoryService(std::ostream &os); // NOLINT
 
-    void add(const Item &item);
+  void add(const Item &item);
 
-    void del(const std::string &id);
+  void del(const std::string &id);
 
-    std::vector<std::string> query(Query query);
+  std::vector<std::string> query(Query query);
 
-    void status();
+  void status();
 };
 
 #endif  // SRC_MEMORY_SERVICE_H_
