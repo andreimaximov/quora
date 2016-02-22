@@ -6,8 +6,8 @@
 #include "controller.h"
 
 int main() {
-  auto queryParser = std::make_shared<QueryParser>();
-  auto memoryService = std::make_shared<MemoryService>(std::cout);
+  QueryParser queryParser;
+  MemoryService memoryService(std::cout);
   Controller controller(queryParser, memoryService, std::cout);
 
   std::string line;

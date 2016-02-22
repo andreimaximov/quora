@@ -14,11 +14,12 @@ const std::string Controller::CMD_QUERY = "QUERY";
 const std::string Controller::CMD_WQUERY = "WQUERY";
 
 Controller::Controller(
-  std::shared_ptr<QueryParser> queryParser,
-  std::shared_ptr<MemoryService> memoryService,
-  std::ostream &os) : out(os) {
-    this->queryParser = queryParser;
-    this->memoryService = memoryService;
+  const QueryParser &queryParser,
+  MemoryService &memoryService,
+  std::ostream &os) :
+    queryParser(queryParser),
+    memoryService(memoryService),
+    out(os) {
   }
 
   void Controller::call(const std::string &command) {
@@ -48,17 +49,17 @@ Controller::Controller(
 
     Item item(type, tokens[2], score, tokens[4]);
 
-    this->memoryService->add(item);
+    this->memoryService.add(item);
   }
 
   void Controller::del(const std::string &command) {
     std::vector<std::string> tokens = split(command, ' ');
-    this->memoryService->del(tokens[1]);
+    this->memoryService.del(tokens[1]);
   }
 
   void Controller::query(const std::string &command) {
-    Query query = this->queryParser->parse(command);
-    std::vector<std::string> results = this->memoryService->query(query);
+    Query query = this->queryParser.parse(command);
+    std::vector<std::string> results = this->memoryService.query(query);
 
     std::string space = "";
     for (std::string &id : results) {

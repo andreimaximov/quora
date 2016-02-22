@@ -8,9 +8,9 @@
 
 class Controller {
  private:
-  std::shared_ptr<QueryParser> queryParser;
+  const QueryParser &queryParser;
 
-  std::shared_ptr<MemoryService> memoryService;
+  MemoryService &memoryService;
 
   std::ostream &out;
 
@@ -29,9 +29,9 @@ class Controller {
 
   static const std::string CMD_WQUERY;
 
-  explicit Controller(
-    std::shared_ptr<QueryParser> queryParser,
-    std::shared_ptr<MemoryService> memoryService,
+  Controller(
+    const QueryParser &queryParser,
+    MemoryService &memoryService, // NOLINT
     std::ostream &os); // NOLINT
 
     void call(const std::string &command);

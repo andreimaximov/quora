@@ -17,7 +17,8 @@ class TrieMap {
 
   Node* at(const std::string &key) {
     Node *node = &(this->root);
-    for (const char &c : key) {auto found = node->children.find(c);
+    for (const char &c : key) {
+      auto found = node->children.find(c);
       if (found == node->children.end()) {
         return nullptr;
       }

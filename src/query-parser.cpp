@@ -8,7 +8,7 @@ const std::string QueryParser::TYPE_QUERY = "QUERY";
 
 const std::string QueryParser::TYPE_WQUERY = "WQUERY";
 
-void QueryParser::boost(std::istream &istream, Query &query) {
+void QueryParser::boost(std::istream &istream, Query &query) const {
   std::string token;
   getline(istream, token, ' ');
   unsigned int boosts = std::stoul(token);
@@ -36,7 +36,7 @@ void QueryParser::boost(std::istream &istream, Query &query) {
 * @param istream
 * @param query
 */
-void QueryParser::buildTokens(std::istream &istream, Query &query) {
+void QueryParser::buildTokens(std::istream &istream, Query &query) const {
   Trie t;
   std::string token;
   while (istream >> token) {
@@ -46,7 +46,7 @@ void QueryParser::buildTokens(std::istream &istream, Query &query) {
   query.tokens = t.tails();
 }
 
-QueryParser::Type QueryParser::type(const std::string &type) {
+QueryParser::Type QueryParser::type(const std::string &type) const {
   if (type == QueryParser::TYPE_QUERY) {
     return QueryParser::Type::QUERY;
   } else if (type == QueryParser::TYPE_WQUERY) {
@@ -55,7 +55,7 @@ QueryParser::Type QueryParser::type(const std::string &type) {
   throw std::invalid_argument("Invalid query type!");
 }
 
-Query QueryParser::parse(const std::string &command) {
+Query QueryParser::parse(const std::string &command) const {
   std::stringstream qstream(command);
 
   // Extract the query type.
