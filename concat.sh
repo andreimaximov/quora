@@ -14,5 +14,16 @@ FILES="${FILES} ${SRC}/query-parser.h ${SRC}/query-parser.cpp"
 FILES="${FILES} ${SRC}/controller.h ${SRC}/controller.cpp"
 FILES="${FILES} ${SRC}/main.cpp"
 
-cat ${FILES} > ${OUT}
+rm -rf ${OUT}
+echo "
+/**
+ * Author: Andrei Maximov
+ *
+ * This is a concatenated version of the original source code which can be
+ * found on my GitHub.
+ *
+ * https://github.com/andreimaximov/quora-typeahead-search
+ */
+" > ${OUT}
+cat ${FILES} >> ${OUT}
 sed -i "" "/#include[[:space:]]*\".*\.h\"/d" ${OUT}
