@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 
 #ifndef SRC_SPLIT_H_
 #define SRC_SPLIT_H_

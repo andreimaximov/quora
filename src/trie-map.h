@@ -1,69 +1,96 @@
-#include <string>
 #include <unordered_set>
-#include <unordered_map>
-#include <stack>
+#include <map>
+#include <memory>
 
 #ifndef SRC_TRIE_MAP_H_
 #define SRC_TRIE_MAP_H_
 
-template <class V>
-class TrieMap {
+template <class K, class V>
+class trie_map {
  private:
-  struct Node {
+  class node {
+   public:
+    typedef std::unique_ptr<node> u_ptr;
+
+    typedef std::map<typename K::value_type, u_ptr> child_map;
+
     std::unordered_set<V> values;
 
-    std::unordered_map<char, Node> children;
+    child_map children;
+
+    node() {
+    }
+
+    node(const node& other) = delete; // NOLINT
+
+    node& operator=(const node &other) = delete;
   };
 
-  Node* at(const std::string &key) {
-    Node *node = &(this->root);
-    for (const char &c : key) {
-      auto found = node->children.find(c);
-      if (found == node->children.end()) {
+  node* at(const K &key) {
+    node* n = &this->root;
+    for (const auto &k : key) {
+      auto iter = n->children.find(k);
+      if (iter == n->children.end()) {
         return nullptr;
       }
-      node = &(found->second);
+      n = iter->second.get();
     }
-    return node;
+    return n;
   }
 
   template <class F>
-  void each(F &f, const Node &root) { // NOLINT
-    for (const V &value : root.values) {
+  void each(F &f, node* n) { // NOLINT
+    for (const V &value : n->values) {
       f(value);
     }
-    for (const auto &it : root.children) {
-      this->each(f, it.second);
+    for (const auto &pair : n->children) {
+      this->each(f, pair.second.get());
     }
   }
 
  public:
-  void insert(const std::string &key, const V &value) {
-    Node *node = &(this->root);
-    for (const char &c : key) {
-      node = &(node->children[c]);
-    }
-    node->values.insert(value);
+  typedef std::pair<K, V> value_type;
+
+  trie_map() {
   }
 
-  void erase(const std::string &key, const V &value) {
-    Node *node = this->at(key);
-    if (node != nullptr) {
-      node->values.erase(value);
+  trie_map(const trie_map& other) = delete;
+
+  trie_map& operator=(const trie_map &other) = delete;
+
+  void insert(const value_type &value) {
+    node* n = &this->root;
+    for (const auto &k : value.first) {
+      auto iter = n->children.find(k);
+      if (iter == n->children.end()) {
+        node *child = new node;
+        n->children[k] = std::unique_ptr<node>(child);
+        n = child;
+      } else {
+        n = iter->second.get();
+      }
+    }
+    n->values.insert(value.second);
+  }
+
+  void erase(const K &key, const V &value) {
+    node *n = this->at(key);
+    if (n != nullptr) {
+      n->values.erase(value);
     }
   }
 
   template <class F>
-  void each(F &f, const std::string &key = "") { // NOLINT
-    Node *root = this->at(key);
-    if (root == nullptr) {
+  void each(F &f, const K &key = K()) { // NOLINT
+    node *n = this->at(key);
+    if (n == nullptr) {
       return;
     }
-    this->each(f, *root);
+    this->each(f, n);
   }
 
  private:
-  Node root;
+  node root;
 };
 
 #endif  // SRC_TRIE_MAP_H_

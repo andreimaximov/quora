@@ -1,5 +1,4 @@
 #include <string>
-#include <memory>
 #include "query-parser.h"
 #include "memory-service.h"
 
@@ -34,7 +33,7 @@ class Controller {
     MemoryService &memoryService, // NOLINT
     std::ostream &os); // NOLINT
 
-    void call(const std::string &command);
+  void call(const std::string &command);
 };
 
 #endif  // SRC_CONTROLLER_H_

@@ -8,6 +8,14 @@ const std::string Item::TYPE_QUESTION = "question";
 
 const std::string Item::TYPE_BOARD = "board";
 
+Item::Item(const std::string &id, const Type &type, const double &score,
+  const std::string &body) :
+  id(id),
+  type(type),
+  score(score),
+  body(body) {
+}
+
 Item::Type Item::stotype(const std::string &str) {
   if (str == Item::TYPE_USER) {
     return Item::Type::USER;

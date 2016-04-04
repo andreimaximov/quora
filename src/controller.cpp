@@ -47,7 +47,7 @@ Controller::Controller(
     Item::Type type = Item::stotype(tokens[1]);
     double score = std::stod(tokens[3]);
 
-    Item item(type, tokens[2], score, tokens[4]);
+    Item item(tokens[2], type, score, tokens[4]);
 
     this->memoryService.add(item);
   }
@@ -61,7 +61,7 @@ Controller::Controller(
     Query query = this->queryParser.parse(command);
     std::vector<std::string> results = this->memoryService.query(query);
 
-    std::string space = "";
+    std::string space("");
     for (std::string &id : results) {
       this->out << space << id;
       space = " ";

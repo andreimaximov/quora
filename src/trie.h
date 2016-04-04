@@ -1,32 +1,69 @@
-#include <string>
-#include <vector>
-#include <unordered_map>
+#include <map>
+#include <memory>
 
 #ifndef SRC_TRIE_H_
 #define SRC_TRIE_H_
 
-class Trie {
- public:
-  void insert(const std::string &str);
-
-  bool contains(const std::string &str) const;
-
-  std::vector<std::string> tails() const;
-
+template <typename V>
+class trie {
  private:
-  struct Node {
-    std::unordered_map<char, Node> children;
+  class node {
+   public:
+    typedef std::unique_ptr<node> u_ptr;
+
+    typedef std::map<typename V::value_type, u_ptr> child_map;
+
+    child_map children;
+
+    node() {
+    }
+
+    node(const node& other) = delete;
+
+    node& operator=(const node &other) = delete;
   };
 
-  Node root;
+  node root;
 
-  size_t depth = 0;
+  size_t depth;
 
-  void tails(
-    const Node &node,
-    std::vector<std::string> &tails, // NOLINT
-    std::vector<char> &chars, // NOLINT
-    size_t i) const;
+ public:
+  trie() : depth(0) {
+  }
+
+  trie(const trie &other) = delete;
+
+  trie& operator=(const trie &other) = delete;
+
+  bool insert(const V &value)  {
+    node *n = &this->root;
+    bool inserted = false;
+    for (const auto &v : value) {
+      auto iter = n->children.find(v);
+      if (iter == n->children.end()) {
+        node *child = new node;
+        n->children[v] = std::unique_ptr<node>(child);
+        n = child;
+        inserted = true;
+      } else {
+        n = iter->second.get();
+      }
+    }
+    this->depth = std::max(this->depth, value.size());
+    return inserted;
+  }
+
+  bool contains(const V &value) const {
+    const node *n = &this->root;
+    for (const auto &v : value) {
+      auto iter = n->children.find(v);
+      if (iter == n->children.end()) {
+        return false;
+      }
+      n = iter->second.get();
+    }
+    return true;
+  }
 };
 
 #endif  // SRC_TRIE_H_

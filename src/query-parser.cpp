@@ -1,5 +1,5 @@
-#include <string>
 #include <sstream>
+#include <algorithm>
 #include "query-parser.h"
 #include "item.h"
 #include "trie.h"
@@ -11,10 +11,10 @@ const std::string QueryParser::TYPE_WQUERY = "WQUERY";
 void QueryParser::boost(std::istream &istream, Query &query) const {
   std::string token;
   getline(istream, token, ' ');
-  unsigned int boosts = std::stoul(token);
+  uint16_t boosts = std::stoul(token);
 
   std::string classifier;
-  for (unsigned int i = 0; i < boosts; i++) {
+  for (uint16_t i = 0; i < boosts; i++) {
     getline(istream, classifier, ':');
     getline(istream, token, ' ');
     double factor = std::stod(token);
@@ -22,9 +22,9 @@ void QueryParser::boost(std::istream &istream, Query &query) const {
     Item::Type type = Item::stotype(classifier);
 
     if (type == Item::Type::INVALID) {
-      query.idBoosts[classifier] = factor;
+      query.ids.push_back(std::make_pair(classifier, factor));
     } else {
-      query.typeBoosts[type] = factor;
+      query.types[type] = factor;
     }
   }
 }
@@ -37,13 +37,21 @@ void QueryParser::boost(std::istream &istream, Query &query) const {
 * @param query
 */
 void QueryParser::buildTokens(std::istream &istream, Query &query) const {
-  Trie t;
+  std::vector<std::string> tokens;
   std::string token;
   while (istream >> token) {
     std::transform(token.begin(), token.end(), token.begin(), ::tolower);
-    t.insert(token);
+    tokens.push_back(token);
   }
-  query.tokens = t.tails();
+
+  std::sort(tokens.begin(), tokens.end());
+
+  trie<std::string> prefixes;
+  for (const std::string &token : tokens) {
+    if (prefixes.insert(token)) {
+      query.tokens.push_back(token);
+    }
+  }
 }
 
 QueryParser::Type QueryParser::type(const std::string &type) const {
@@ -56,24 +64,24 @@ QueryParser::Type QueryParser::type(const std::string &type) const {
 }
 
 Query QueryParser::parse(const std::string &command) const {
-  std::stringstream qstream(command);
+  std::stringstream stream(command);
 
   // Extract the query type.
   std::string token;
-  getline(qstream, token, ' ');
+  getline(stream, token, ' ');
   QueryParser::Type type = this->type(token);
 
   // Extract the number of results for this query.
-  getline(qstream, token, ' ');
+  getline(stream, token, ' ');
   Query query(std::stoi(token));
 
   // Apply boosts if needed.
   if (type == QueryParser::Type::WQUERY) {
-    this->boost(qstream, query);
+    this->boost(stream, query);
   }
 
   // Parse the query body.
-  this->buildTokens(qstream, query);
+  this->buildTokens(stream, query);
 
   return query;
 }

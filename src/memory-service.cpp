@@ -1,5 +1,10 @@
+#include <algorithm>
 #include "memory-service.h"
 #include "split.h"
+
+MemoryService::Entry::Entry(const Item &item, uint32_t time) :
+  item(item), time(time) {
+}
 
 bool MemoryService::Result::operator<(const Result &other) const {
   if (this->score < other.score) {
@@ -15,146 +20,119 @@ MemoryService::Searcher::Searcher(
   const MemoryService &memoryService) :
   query(query),
   memoryService(memoryService) {
+  this->init();
+}
+
+void MemoryService::Searcher::init() {
+  for (const auto &iter : this->query.ids) {
+    this->process(iter.first, iter.second);
   }
+}
 
-  void MemoryService::Searcher::init() {
-    for (auto &iter : this->query.idBoosts) {
-      this->process(iter.first, iter.second);
-    }
-  }
-
-  bool MemoryService::Searcher::matches(const Entry &entry) {
-    for (const std::string &token : this->query.tokens) {
-      if (!entry.trie.contains(token)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  float MemoryService::Searcher::boost(const Entry &entry) {
-    float boost = 1;
-
-    auto iter = this->query.typeBoosts.find(entry.type);
-    if (iter != this->query.typeBoosts.end()) {
-      boost *= iter->second;
-    }
-
-    return boost;
-  }
-
-  void MemoryService::Searcher::operator()(const std::string &id) {
-    this->process(id, 1);
-  }
-
-  void MemoryService::Searcher::process(const std::string &id, float boost) {
-    auto iter = this->memoryService.items.find(id);
-    if (iter == this->memoryService.items.end()) {
-      return;
-    }
-
-    const Entry &entry = iter->second;
-    if (!this->matches(entry)) {
-      return;
-    }
-
-    if (this->cache.find(entry.id) != this->cache.end()) {
-      return;
-    }
-    this->cache.emplace(entry.id);
-
-    boost = this->boost(entry) * boost;
-    Result result {entry.id, entry.score * boost, entry.time};
-
-    if (this->heap.size() >= this->query.results &&
-    this->heap.top() < result) {
-      return;
-    }
-
-    this->heap.push(std::move(result));
-    if (this->heap.size() > this->query.results) {
-      this->heap.pop();
+bool MemoryService::Searcher::matches(const Entry *entry) {
+  for (const std::string &token : this->query.tokens) {
+    if (!entry->prefixes.contains(token)) {
+      return false;
     }
   }
+  return true;
+}
 
-  std::vector<std::string> MemoryService::Searcher::results() {
-    size_t i = this->heap.size();
-    std::vector<std::string> results(i);
+void MemoryService::Searcher::operator()(const std::string &id) {
+  this->process(id, 1);
+}
 
-    while ((i--) > 0) {
-      results[i] = this->heap.top().id;
-      this->heap.pop();
-    }
-
-    return results;
+void MemoryService::Searcher::process(const std::string &id, float boost) {
+  auto iter = this->memoryService.items.find(id);
+  if (iter == this->memoryService.items.end()) {
+    return;
   }
 
-  uint32_t MemoryService::time = 0;
-
-  MemoryService::MemoryService(std::ostream &os) : out(os) {
+  const Entry *entry = iter->second.get();
+  if (!this->matches(entry)) {
+    return;
   }
 
-  void MemoryService::add(const Item &item) {
-    if (this->items.find(item.id) != this->items.end()) {
-      return;
-    }
+  if (this->cache.find(entry->item.id) != this->cache.end()) {
+    return;
+  }
+  this->cache.emplace(entry->item.id);
 
-    Entry entry {item.id, item.type, item.score, MemoryService::time++};
+  boost *= this->query.types[entry->item.type];
+  Result result {entry->item.id, entry->item.score * boost, entry->time};
 
-    std::string body = item.body;
-    std::transform(body.begin(), body.end(), body.begin(), ::tolower);
-
-    for (std::string &str : split(body, ' ')) {
-      entry.trie.insert(str);
-    }
-
-    for (std::string &tail : entry.trie.tails()) {
-      this->prefixes.insert(tail, item.id);
-    }
-
-    this->items[item.id] = std::move(entry);
+  if (this->heap.size() >= this->query.results &&
+  this->heap.top() < result) {
+    return;
   }
 
-  void MemoryService::del(const std::string &id) {
-    if (this->items.find(id) == this->items.end()) {
-      return;
-    }
+  this->heap.push(std::move(result));
+  if (this->heap.size() > this->query.results) {
+    this->heap.pop();
+  }
+}
 
-    MemoryService::Entry &entry = this->items[id];
+std::vector<std::string> MemoryService::Searcher::results() {
+  size_t i = this->heap.size();
+  std::vector<std::string> results(i);
 
-    for (std::string &tail : entry.trie.tails()) {
-      this->prefixes.erase(tail, id);
-    }
-
-    this->items.erase(id);
+  while ((i--) > 0) {
+    results[i] = this->heap.top().id;
+    this->heap.pop();
   }
 
-  std::vector<std::string> MemoryService::query(Query query) {
-    if (query.results == 0) {
-      return std::vector<std::string>();
-    }
+  return results;
+}
 
-    MemoryService::Searcher searcher(query, *this);
-    searcher.init();
+MemoryService::MemoryService() : time(0) {
+}
 
-    std::string bucket = "";
-    if (!query.tokens.empty()) {
-      bucket = query.tokens.back();
-      query.tokens.pop_back();
-    }
-    this->prefixes.each(searcher, bucket);
-
-    return searcher.results();
+void MemoryService::add(const Item &item) {
+  if (this->items.find(item.id) != this->items.end()) {
+    return;
   }
 
-  void MemoryService::status() {
-    this->out << "Status" << std::endl;
+  std::unique_ptr<Entry> entry(new Entry(item, this->time++));
 
-    this->out << "\tItems: {";
-    std::string separator = "";
-    for (auto &pair : this->items) {
-      this->out << separator << pair.first;
-      separator = ", ";
-    }
-    this->out << "}" << std::endl;
+  std::string &body = entry->item.body;
+  std::transform(body.begin(), body.end(), body.begin(), ::tolower);
+
+  for (const std::string &token : split(body, ' ')) {
+    entry->prefixes.insert(token);
+    this->prefixes.insert({token, item.id});
   }
+
+  this->items.emplace(item.id, std::move(entry));
+}
+
+void MemoryService::del(const std::string &id) {
+  auto iter = this->items.find(id);
+  if (iter == this->items.end()) {
+    return;
+  }
+
+  const Entry *entry = iter->second.get();
+
+  for (const std::string &token : split(entry->item.body, ' ')) {
+    this->prefixes.erase(token, id);
+  }
+
+  this->items.erase(id);
+}
+
+std::vector<std::string> MemoryService::query(Query query) {
+  if (query.results == 0) {
+    return std::vector<std::string>();
+  }
+
+  MemoryService::Searcher searcher(query, *this);
+
+  std::string bucket("");
+  if (!query.tokens.empty()) {
+    bucket = query.tokens.back();
+    query.tokens.pop_back();
+  }
+  this->prefixes.each(searcher, bucket);
+
+  return searcher.results();
+}

@@ -6,7 +6,7 @@
 class Item {
  public:
   enum Type {
-    USER, TOPIC, QUESTION, BOARD, INVALID
+    USER = 0, TOPIC = 1, QUESTION = 2, BOARD = 3, INVALID = 4
   };
 
   static const std::string TYPE_USER;
@@ -17,22 +17,18 @@ class Item {
 
   static const std::string TYPE_BOARD;
 
-  static Type stotype(const std::string &str);
+  std::string id;
 
   Type type;
-
-  std::string id;
 
   float score;
 
   std::string body;
 
-  Item(Type type, std::string id, double score, std::string body) :
-  type(type),
-  id(id),
-  score(score),
-  body(body) {
-  }
+  Item(const std::string &id, const Type &type, const double &score,
+    const std::string &body);
+
+  static Type stotype(const std::string &str);
 };
 
 #endif  // SRC_ITEM_H_

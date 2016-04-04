@@ -1,3 +1,4 @@
+#include <string>
 #include <istream>
 #include "query.h"
 

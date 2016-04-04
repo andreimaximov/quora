@@ -1,13 +1,12 @@
 #include <iostream>
 #include <string>
-#include <memory>
 #include "query-parser.h"
 #include "memory-service.h"
 #include "controller.h"
 
 int main() {
   QueryParser queryParser;
-  MemoryService memoryService(std::cout);
+  MemoryService memoryService;
   Controller controller(queryParser, memoryService, std::cout);
 
   std::string line;
