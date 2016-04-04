@@ -9,11 +9,11 @@ const std::string Item::TYPE_QUESTION = "question";
 const std::string Item::TYPE_BOARD = "board";
 
 Item::Item(const std::string &id, const Type &type, const double &score,
-  const std::string &body) :
+  std::vector<std::string> tokens) :
   id(id),
   type(type),
   score(score),
-  body(body) {
+  tokens(tokens) {
 }
 
 Item::Type Item::stotype(const std::string &str) {

@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 #ifndef SRC_ITEM_H_
 #define SRC_ITEM_H_
@@ -23,10 +24,10 @@ class Item {
 
   float score;
 
-  std::string body;
+  std::vector<std::string> tokens;
 
   Item(const std::string &id, const Type &type, const double &score,
-    const std::string &body);
+    const std::vector<std::string> tokens);
 
   static Type stotype(const std::string &str);
 };

@@ -1,6 +1,4 @@
-#include <algorithm>
 #include "memory-service.h"
-#include "split.h"
 
 MemoryService::Entry::Entry(const Item &item, uint32_t time) :
   item(item), time(time) {
@@ -94,10 +92,7 @@ void MemoryService::add(const Item &item) {
 
   std::unique_ptr<Entry> entry(new Entry(item, this->time++));
 
-  std::string &body = entry->item.body;
-  std::transform(body.begin(), body.end(), body.begin(), ::tolower);
-
-  for (const std::string &token : split(body, ' ')) {
+  for (const std::string &token : entry->item.tokens) {
     entry->prefixes.insert(token);
     this->prefixes.insert({token, item.id});
   }
@@ -113,7 +108,7 @@ void MemoryService::del(const std::string &id) {
 
   const Entry *entry = iter->second.get();
 
-  for (const std::string &token : split(entry->item.body, ' ')) {
+  for (const std::string &token : entry->item.tokens) {
     this->prefixes.erase(token, id);
   }
 

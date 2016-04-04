@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include "controller.h"
 #include "query.h"
 #include "split.h"
@@ -43,12 +44,17 @@ Controller::Controller(
   }
 
   void Controller::add(const std::string &command) {
-    std::vector<std::string> tokens = split(command, ' ', 5);
+    std::vector<std::string> tokens = split(command, ' ');
     Item::Type type = Item::stotype(tokens[1]);
+    std::string id = tokens[2];
     double score = std::stod(tokens[3]);
 
-    Item item(tokens[2], type, score, tokens[4]);
+    tokens.erase(tokens.begin(), tokens.begin() + 4);
+    for (std::string &token : tokens) {
+      std::transform(token.begin(), token.end(), token.begin(), ::tolower);
+    }
 
+    Item item(id, type, score, tokens);
     this->memoryService.add(item);
   }
 
