@@ -1,5 +1,5 @@
 CXX := clang++
-CXXFLAGS := -std=c++11 -stdlib=libc++ -Wall
+CXXFLAGS := -std=c++11 -stdlib=libc++ -O3 -Wall
 
 SRCS := $(wildcard src/*.cpp)
 HDRS := $(wildcard src/*.h)
