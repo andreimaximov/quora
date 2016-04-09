@@ -1,68 +1,38 @@
-#include <map>
 #include <memory>
+#include "trie-map.h"
 
 #ifndef SRC_TRIE_H_
 #define SRC_TRIE_H_
 
-template <typename V>
+template <class Value>
 class trie {
  private:
-  class node {
-   public:
-    typedef std::unique_ptr<node> u_ptr;
-
-    typedef std::map<typename V::value_type, u_ptr> child_map;
-
-    child_map children;
-
-    node() {
-    }
-
-    node(const node& other) = delete;
-
-    node& operator=(const node &other) = delete;
-  };
-
-  node root;
-
-  size_t depth;
+  trie_map<Value, bool> inner;
 
  public:
-  trie() : depth(0) {
+  typedef Value value_type;
+
+  trie() {
   }
 
-  trie(const trie &other) = delete;
+  trie(const trie& other) = delete;
 
   trie& operator=(const trie &other) = delete;
 
-  bool insert(const V &value)  {
-    node *n = &this->root;
-    bool inserted = false;
-    for (const auto &v : value) {
-      auto iter = n->children.find(v);
-      if (iter == n->children.end()) {
-        node *child = new node;
-        n->children[v] = std::unique_ptr<node>(child);
-        n = child;
-        inserted = true;
-      } else {
-        n = iter->second.get();
-      }
+  bool insert(const value_type &value) {
+    if (this->contains(value)) {
+      return false;
     }
-    this->depth = std::max(this->depth, value.size());
-    return inserted;
+    this->inner.insert(std::make_pair(value, true));
+    return true;
   }
 
-  bool contains(const V &value) const {
-    const node *n = &this->root;
-    for (const auto &v : value) {
-      auto iter = n->children.find(v);
-      if (iter == n->children.end()) {
-        return false;
-      }
-      n = iter->second.get();
-    }
-    return true;
+  void erase(const value_type &value) {
+    this->inner.erase(value);
+  }
+
+  bool contains(const value_type &value) const {
+    return this->inner.contains(value);
   }
 };
 

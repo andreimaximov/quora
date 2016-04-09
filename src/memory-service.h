@@ -3,10 +3,11 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <queue>
+#include <memory>
 #include "item.h"
 #include "query.h"
-#include "trie-map.h"
 #include "trie.h"
+#include "trie-multi-map.h"
 
 #ifndef SRC_MEMORY_SERVICE_H_
 #define SRC_MEMORY_SERVICE_H_
@@ -15,6 +16,8 @@ class MemoryService {
  private:
   class Entry {
    public:
+    typedef std::shared_ptr<Entry> shared_ptr;
+
     Item item;
 
     uint32_t time;
@@ -47,20 +50,20 @@ class MemoryService {
 
     void init();
 
-    bool matches(const Entry *entry);
+    bool matches(const Entry &entry);
 
-    void process(const std::string &id, float boost);
+    void process(const Entry &entry, float boost);
    public:
     Searcher(const Query &query, const MemoryService &memoryService);
 
-    void operator()(const std::string &id);
+    void operator()(const Entry::shared_ptr &entry);
 
     std::vector<std::string> results();
   };
 
-  trie_map<std::string, std::string> prefixes;
+  trie_multi_map<std::string, Entry::shared_ptr> prefixes;
 
-  std::unordered_map<std::string, std::unique_ptr<Entry>> items;
+  std::unordered_map<std::string, Entry::shared_ptr> items;
 
   uint32_t time;
 

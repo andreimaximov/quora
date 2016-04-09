@@ -22,42 +22,40 @@ MemoryService::Searcher::Searcher(
 }
 
 void MemoryService::Searcher::init() {
-  for (const auto &iter : this->query.ids) {
-    this->process(iter.first, iter.second);
+  for (auto pair : this->query.ids) {
+    auto find = this->memoryService.items.find(pair.first);
+    if (find == this->memoryService.items.end()) {
+      continue;
+    }
+    this->process(*find->second, pair.second);
   }
 }
 
-bool MemoryService::Searcher::matches(const Entry *entry) {
+bool MemoryService::Searcher::matches(const Entry &entry) {
   for (const std::string &token : this->query.tokens) {
-    if (!entry->prefixes.contains(token)) {
+    if (!entry.prefixes.contains(token)) {
       return false;
     }
   }
   return true;
 }
 
-void MemoryService::Searcher::operator()(const std::string &id) {
-  this->process(id, 1);
+void MemoryService::Searcher::operator()(const Entry::shared_ptr &entry) {
+  this->process(*entry, 1);
 }
 
-void MemoryService::Searcher::process(const std::string &id, float boost) {
-  auto iter = this->memoryService.items.find(id);
-  if (iter == this->memoryService.items.end()) {
-    return;
-  }
-
-  const Entry *entry = iter->second.get();
+void MemoryService::Searcher::process(const Entry &entry, float boost) {
   if (!this->matches(entry)) {
     return;
   }
 
-  if (this->cache.find(entry->item.id) != this->cache.end()) {
+  if (this->cache.find(entry.item.id) != this->cache.end()) {
     return;
   }
-  this->cache.emplace(entry->item.id);
+  this->cache.emplace(entry.item.id);
 
-  boost *= this->query.types[entry->item.type];
-  Result result {entry->item.id, entry->item.score * boost, entry->time};
+  boost *= this->query.types[entry.item.type];
+  Result result {entry.item.id, entry.item.score * boost, entry.time};
 
   if (this->heap.size() >= this->query.results &&
   this->heap.top() < result) {
@@ -90,14 +88,14 @@ void MemoryService::add(const Item &item) {
     return;
   }
 
-  std::unique_ptr<Entry> entry(new Entry(item, this->time++));
+  std::shared_ptr<Entry> entry(new Entry(item, this->time++));
 
   for (const std::string &token : entry->item.tokens) {
     entry->prefixes.insert(token);
-    this->prefixes.insert({token, item.id});
+    this->prefixes.insert(std::make_pair(token, entry));
   }
 
-  this->items.emplace(item.id, std::move(entry));
+  this->items[item.id] = entry;
 }
 
 void MemoryService::del(const std::string &id) {
@@ -106,10 +104,10 @@ void MemoryService::del(const std::string &id) {
     return;
   }
 
-  const Entry *entry = iter->second.get();
+  Entry::shared_ptr entry = iter->second;
 
   for (const std::string &token : entry->item.tokens) {
-    this->prefixes.erase(token, id);
+    this->prefixes.erase(std::make_pair(token, entry));
   }
 
   this->items.erase(id);

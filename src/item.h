@@ -26,9 +26,6 @@ class Item {
 
   std::vector<std::string> tokens;
 
-  Item(const std::string &id, const Type &type, const double &score,
-    const std::vector<std::string> tokens);
-
   static Type stotype(const std::string &str);
 };
 

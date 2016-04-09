@@ -47,14 +47,14 @@ Controller::Controller(
     std::vector<std::string> tokens = split(command, ' ');
     Item::Type type = Item::stotype(tokens[1]);
     std::string id = tokens[2];
-    double score = std::stod(tokens[3]);
+    float score = std::stof(tokens[3]);
 
     tokens.erase(tokens.begin(), tokens.begin() + 4);
     for (std::string &token : tokens) {
       std::transform(token.begin(), token.end(), token.begin(), ::tolower);
     }
 
-    Item item(id, type, score, tokens);
+    Item item {id, type, score, std::move(tokens)};
     this->memoryService.add(item);
   }
 

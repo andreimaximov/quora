@@ -9,7 +9,7 @@ class QueryParser {
  private:
   void boost(std::istream &istream, Query &query) const; //NOLINT
 
-  void buildTokens(std::istream &istream, Query &query) const; // NOLINT
+  void applyTokens(std::istream &istream, Query &query) const; // NOLINT
  public:
   enum Type {
     QUERY, WQUERY

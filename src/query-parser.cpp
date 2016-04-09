@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "query-parser.h"
 #include "item.h"
-#include "trie.h"
 
 const std::string QueryParser::TYPE_QUERY = "QUERY";
 
@@ -10,13 +9,13 @@ const std::string QueryParser::TYPE_WQUERY = "WQUERY";
 
 void QueryParser::boost(std::istream &istream, Query &query) const {
   std::string token;
-  getline(istream, token, ' ');
+  std::getline(istream, token, ' ');
   uint16_t boosts = std::stoul(token);
 
   std::string classifier;
   for (uint16_t i = 0; i < boosts; i++) {
-    getline(istream, classifier, ':');
-    getline(istream, token, ' ');
+    std::getline(istream, classifier, ':');
+    std::getline(istream, token, ' ');
     double factor = std::stod(token);
 
     Item::Type type = Item::stotype(classifier);
@@ -29,28 +28,12 @@ void QueryParser::boost(std::istream &istream, Query &query) const {
   }
 }
 
-/**
-* Optimizes the query body by ignoring tokens that are prefixes of other
-* tokens.
-*
-* @param istream
-* @param query
-*/
-void QueryParser::buildTokens(std::istream &istream, Query &query) const {
+void QueryParser::applyTokens(std::istream &istream, Query &query) const {
   std::vector<std::string> tokens;
   std::string token;
   while (istream >> token) {
     std::transform(token.begin(), token.end(), token.begin(), ::tolower);
-    tokens.push_back(token);
-  }
-
-  std::sort(tokens.begin(), tokens.end());
-
-  trie<std::string> prefixes;
-  for (const std::string &token : tokens) {
-    if (prefixes.insert(token)) {
-      query.tokens.push_back(token);
-    }
+    query.tokens.push_back(token);
   }
 }
 
@@ -68,11 +51,11 @@ Query QueryParser::parse(const std::string &command) const {
 
   // Extract the query type.
   std::string token;
-  getline(stream, token, ' ');
+  std::getline(stream, token, ' ');
   QueryParser::Type type = this->type(token);
 
   // Extract the number of results for this query.
-  getline(stream, token, ' ');
+  std::getline(stream, token, ' ');
   Query query(std::stoi(token));
 
   // Apply boosts if needed.
@@ -81,7 +64,7 @@ Query QueryParser::parse(const std::string &command) const {
   }
 
   // Parse the query body.
-  this->buildTokens(stream, query);
+  this->applyTokens(stream, query);
 
   return query;
 }
