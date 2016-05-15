@@ -1,20 +1,33 @@
 #include <string>
 #include <vector>
-#include "item.h"
 
 #ifndef SRC_QUERY_H_
 #define SRC_QUERY_H_
 
+struct IDBoost {
+  std::string id;
+
+  double boost;
+};
+
 struct Query {
+  enum Type {
+    STANDARD, BOOSTED
+  };
+
   size_t results;
+
+  Type type;
 
   std::vector<std::string> tokens;
 
-  double types[4] = {1, 1, 1, 1};
+  // The default boost factors for each item type
+  double typeBoosts[4] = {1, 1, 1, 1};
 
-  std::vector<std::pair<std::string, double>> ids;
+  // Optional ID specific item boosts
+  std::vector<IDBoost> idBoosts;
 
-  explicit Query(size_t results) : results(results) {
+  explicit Query(size_t results, Type type) : results(results), type(type) {
   }
 };
 

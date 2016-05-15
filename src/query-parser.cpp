@@ -1,4 +1,3 @@
-#include <sstream>
 #include <algorithm>
 #include "query-parser.h"
 #include "item.h"
@@ -7,64 +6,51 @@ const std::string QueryParser::TYPE_QUERY = "QUERY";
 
 const std::string QueryParser::TYPE_WQUERY = "WQUERY";
 
-void QueryParser::boost(std::istream &istream, Query &query) const {
-  std::string token;
-  std::getline(istream, token, ' ');
-  uint16_t boosts = std::stoul(token);
+void QueryParser::applyBoosts(std::istream& in, Query& query) const {
+  uint16_t boosts;
+  in >> boosts;
 
-  std::string classifier;
+  std::string boost;
   for (uint16_t i = 0; i < boosts; i++) {
-    std::getline(istream, classifier, ':');
-    std::getline(istream, token, ' ');
-    double factor = std::stod(token);
+    in >> boost;
+    std::string::size_type position = boost.find(':');
+    if (position == std::string::npos) {
+        continue;
+    }
+    std::string classifier = boost.substr(0, position);
+    double factor = std::stod(boost.substr(position + 1));
 
     Item::Type type = Item::stotype(classifier);
 
     if (type == Item::Type::INVALID) {
-      query.ids.push_back(std::make_pair(classifier, factor));
+      query.idBoosts.push_back(IDBoost {classifier, factor});
     } else {
-      query.types[type] = factor;
+      query.typeBoosts[type] = factor;
     }
   }
 }
 
-void QueryParser::applyTokens(std::istream &istream, Query &query) const {
-  std::vector<std::string> tokens;
+void QueryParser::applyTokens(std::istream &in, Query &query) const {
   std::string token;
-  while (istream >> token) {
+  while (in >> token) {
     std::transform(token.begin(), token.end(), token.begin(), ::tolower);
     query.tokens.push_back(token);
   }
 }
 
-QueryParser::Type QueryParser::type(const std::string &type) const {
-  if (type == QueryParser::TYPE_QUERY) {
-    return QueryParser::Type::QUERY;
-  } else if (type == QueryParser::TYPE_WQUERY) {
-    return QueryParser::Type::WQUERY;
-  }
-  throw std::invalid_argument("Invalid query type!");
-}
-
-Query QueryParser::parse(const std::string &command) const {
-  std::stringstream stream(command);
-
-  // Extract the query type.
-  std::string token;
-  std::getline(stream, token, ' ');
-  QueryParser::Type type = this->type(token);
-
+Query QueryParser::parse(Query::Type type, std::istream& in) const {
   // Extract the number of results for this query.
-  std::getline(stream, token, ' ');
-  Query query(std::stoi(token));
+  size_t results;
+  in >> results;
+  Query query(results, type);
 
   // Apply boosts if needed.
-  if (type == QueryParser::Type::WQUERY) {
-    this->boost(stream, query);
+  if (type == Query::Type::BOOSTED) {
+    this->applyBoosts(in, query);
   }
 
   // Parse the query body.
-  this->applyTokens(stream, query);
+  this->applyTokens(in, query);
 
   return query;
 }

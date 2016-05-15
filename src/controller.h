@@ -1,39 +1,41 @@
+#include <istream>
 #include <string>
 #include "query-parser.h"
 #include "memory-service.h"
+#include "query.h"
 
 #ifndef SRC_CONTROLLER_H_
 #define SRC_CONTROLLER_H_
 
 class Controller {
  private:
-  const QueryParser &queryParser;
+  QueryParser& queryParser;
 
-  MemoryService &memoryService;
+  MemoryService& memoryService;
 
-  std::ostream &out;
+  std::ostream& out;
 
-  void add(const std::string &command);
+  void add(std::istream& in); // NOLINT
 
-  void del(const std::string &command);
+  void del(std::istream& in); // NOLINT
 
-  void query(const std::string &command);
+  void query(Query::Type type, std::istream& in); // NOLINT
 
  public:
-  static const std::string CMD_ADD;
+  static const std::string COMMAND_ADD;
 
-  static const std::string CMD_DEL;
+  static const std::string COMMAND_DEL;
 
-  static const std::string CMD_QUERY;
+  static const std::string COMMAND_QUERY;
 
-  static const std::string CMD_WQUERY;
+  static const std::string COMMAND_WQUERY;
 
   Controller(
-    const QueryParser &queryParser,
-    MemoryService &memoryService, // NOLINT
-    std::ostream &os); // NOLINT
+    QueryParser& queryParser, // NOLINT
+    MemoryService& memoryService, // NOLINT
+    std::ostream& os); // NOLINT
 
-  void call(const std::string &command);
+  void execute(const std::string& statement);
 };
 
 #endif  // SRC_CONTROLLER_H_

@@ -22,12 +22,12 @@ MemoryService::Searcher::Searcher(
 }
 
 void MemoryService::Searcher::init() {
-  for (auto pair : this->query.ids) {
-    auto find = this->memoryService.items.find(pair.first);
+  for (const IDBoost& boost : this->query.idBoosts) {
+    auto find = this->memoryService.items.find(boost.id);
     if (find == this->memoryService.items.end()) {
       continue;
     }
-    this->process(*find->second, pair.second);
+    this->process(*find->second, boost.boost);
   }
 }
 
@@ -54,7 +54,7 @@ void MemoryService::Searcher::process(const Entry &entry, float boost) {
   }
   this->cache.emplace(entry.item.id);
 
-  boost *= this->query.types[entry.item.type];
+  boost *= this->query.typeBoosts[entry.item.type];
   Result result {entry.item.id, entry.item.score * boost, entry.time};
 
   if (this->heap.size() >= this->query.results &&

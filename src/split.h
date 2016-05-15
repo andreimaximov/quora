@@ -1,9 +1,9 @@
+#include <istream>
 #include <vector>
-#include <string>
 
 #ifndef SRC_SPLIT_H_
 #define SRC_SPLIT_H_
 
-std::vector<std::string> split(const std::string &src, char delim);
+std::vector<std::string> split(std::istream& in);
 
 #endif  // SRC_SPLIT_H_

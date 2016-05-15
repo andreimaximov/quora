@@ -4,8 +4,7 @@
 #ifndef SRC_ITEM_H_
 #define SRC_ITEM_H_
 
-class Item {
- public:
+struct Item {
   enum Type {
     USER = 0, TOPIC = 1, QUESTION = 2, BOARD = 3, INVALID = 4
   };

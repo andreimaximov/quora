@@ -1,76 +1,85 @@
-#include <vector>
 #include <iostream>
+#include <sstream>
+#include <vector>
 #include <algorithm>
 #include "controller.h"
 #include "query.h"
-#include "split.h"
 #include "item.h"
+#include "split.h"
 
-const std::string Controller::CMD_ADD = "ADD";
+const std::string Controller::COMMAND_ADD = "ADD";
 
-const std::string Controller::CMD_DEL = "DEL";
+const std::string Controller::COMMAND_DEL = "DEL";
 
-const std::string Controller::CMD_QUERY = "QUERY";
+const std::string Controller::COMMAND_QUERY = "QUERY";
 
-const std::string Controller::CMD_WQUERY = "WQUERY";
+const std::string Controller::COMMAND_WQUERY = "WQUERY";
 
 Controller::Controller(
-  const QueryParser &queryParser,
-  MemoryService &memoryService,
-  std::ostream &os) :
-    queryParser(queryParser),
-    memoryService(memoryService),
-    out(os) {
+  QueryParser& queryParser,
+  MemoryService& memoryService,
+  std::ostream& os) :
+  queryParser(queryParser),
+  memoryService(memoryService),
+  out(os) {
+}
+
+void Controller::execute(const std::string& statement) {
+  std::istringstream in(statement);
+  std::string action;
+  in >> action;
+
+  if (action == Controller::COMMAND_ADD) {
+    this->add(in);
+  } else if (action == Controller::COMMAND_DEL) {
+    this->del(in);
+  } else if (action == Controller::COMMAND_QUERY) {
+    this->query(Query::Type::STANDARD, in);
+  } else if (action == Controller::COMMAND_WQUERY) {
+    this->query(Query::Type::BOOSTED, in);
+  } else {
+    throw std::invalid_argument("Invalid command!");
+  }
+}
+
+void Controller::add(std::istream& in) {
+  Item item;
+  std::string token;
+
+  // Parse type
+  in >> token;
+  item.type = Item::stotype(token);
+
+  // Parse ID
+  in >> item.id;
+
+  // Parse score
+  in >> token;
+  item.score = std::stof(token);
+
+  // Parse tokens and transform to lowercase
+  item.tokens = split(in);
+  for (auto it = item.tokens.begin(); it != item.tokens.end(); ++it) {
+    std::transform(it->begin(), it->end(), it->begin(), ::tolower);
   }
 
-  void Controller::call(const std::string &command) {
-    size_t space = command.find(' ');
-    if (space == std::string::npos) {
-      throw std::invalid_argument("Could not parse command!");
-    }
-    std::string action = command.substr(0, space);
+  this->memoryService.add(item);
+}
 
-    if (action == Controller::CMD_ADD) {
-      this->add(command);
-    } else if (action == Controller::CMD_DEL) {
-      this->del(command);
-    } else if (action == Controller::CMD_QUERY) {
-      this->query(command);
-    } else if (action == Controller::CMD_WQUERY) {
-      this->query(command);
-    } else {
-      throw std::invalid_argument("Invalid command!");
-    }
+void Controller::del(std::istream& in) {
+  std::string id;
+  in >> id;
+  this->memoryService.del(id);
+}
+
+void Controller::query(Query::Type type, std::istream& in) {
+  Query query = this->queryParser.parse(type, in);
+  std::vector<std::string> results = this->memoryService.query(query);
+
+  std::string separator("");
+  for (const std::string& id : results) {
+    this->out << separator << id;
+    separator = " ";
   }
-
-  void Controller::add(const std::string &command) {
-    std::vector<std::string> tokens = split(command, ' ');
-    Item::Type type = Item::stotype(tokens[1]);
-    std::string id = tokens[2];
-    float score = std::stof(tokens[3]);
-
-    tokens.erase(tokens.begin(), tokens.begin() + 4);
-    for (std::string &token : tokens) {
-      std::transform(token.begin(), token.end(), token.begin(), ::tolower);
-    }
-
-    Item item {id, type, score, std::move(tokens)};
-    this->memoryService.add(item);
-  }
-
-  void Controller::del(const std::string &command) {
-    std::vector<std::string> tokens = split(command, ' ');
-    this->memoryService.del(tokens[1]);
-  }
-
-  void Controller::query(const std::string &command) {
-    Query query = this->queryParser.parse(command);
-    std::vector<std::string> results = this->memoryService.query(query);
-
-    std::string space("");
-    for (std::string &id : results) {
-      this->out << space << id;
-      space = " ";
-    }
-    this->out << std::endl;
-  }
+  this->out << std::endl;
+}
