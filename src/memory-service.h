@@ -24,7 +24,7 @@ class MemoryService {
 
     trie<std::string> prefixes;
 
-    Entry(const Item &item, uint32_t time);
+    Entry(const Item& item, uint32_t time);
   };
 
   class Result {
@@ -35,14 +35,14 @@ class MemoryService {
 
     uint32_t time;
 
-    bool operator<(const Result &other) const;
+    bool operator<(const Result& other) const;
   };
 
-  class Searcher {
+  class Collector {
    private:
-    const Query &query;
+    const Query& query;
 
-    const MemoryService &memoryService;
+    const MemoryService& memoryService;
 
     std::priority_queue<Result> heap;
 
@@ -50,13 +50,13 @@ class MemoryService {
 
     void init();
 
-    bool matches(const Entry &entry);
+    bool matches(const Entry& entry);
 
-    void process(const Entry &entry, float boost);
+    void process(const Entry& entry, float boost);
    public:
-    Searcher(const Query &query, const MemoryService &memoryService);
+    Collector(const Query& query, const MemoryService& memoryService);
 
-    void operator()(const Entry::shared_ptr &entry);
+    void operator()(const Entry::shared_ptr& entry);
 
     std::vector<std::string> results();
   };
@@ -70,11 +70,11 @@ class MemoryService {
  public:
   MemoryService();
 
-  void add(const Item &item);
+  void add(const Item& item);
 
-  void del(const std::string &id);
+  void del(const std::string& id);
 
-  std::vector<std::string> query(Query query);
+  std::vector<std::string> query(const Query& query);
 };
 
 #endif  // SRC_MEMORY_SERVICE_H_
