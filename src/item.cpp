@@ -1,4 +1,4 @@
-#include "item.h"
+#include "item.hpp"
 
 const std::string Item::TYPE_USER = "user";
 
@@ -8,7 +8,7 @@ const std::string Item::TYPE_QUESTION = "question";
 
 const std::string Item::TYPE_BOARD = "board";
 
-Item::Type Item::stotype(const std::string &str) {
+Item::Type Item::stotype(const std::string& str) {
   if (str == Item::TYPE_USER) {
     return Item::Type::USER;
   } else if (str == Item::TYPE_TOPIC) {

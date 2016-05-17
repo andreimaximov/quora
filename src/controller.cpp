@@ -1,11 +1,9 @@
-#include <iostream>
 #include <sstream>
 #include <vector>
 #include <algorithm>
-#include "controller.h"
-#include "query.h"
-#include "item.h"
-#include "split.h"
+#include "controller.hpp"
+#include "item.hpp"
+#include "split.hpp"
 
 const std::string Controller::COMMAND_ADD = "ADD";
 
@@ -17,10 +15,10 @@ const std::string Controller::COMMAND_WQUERY = "WQUERY";
 
 Controller::Controller(
   QueryParser& queryParser,
-  MemoryService& memoryService,
+  Typeahead& typeahead,
   std::ostream& os) :
   queryParser(queryParser),
-  memoryService(memoryService),
+  typeahead(typeahead),
   out(os) {
 }
 
@@ -63,22 +61,22 @@ void Controller::add(std::istream& in) {
     std::transform(it->begin(), it->end(), it->begin(), ::tolower);
   }
 
-  this->memoryService.add(item);
+  this->typeahead.add(item);
 }
 
 void Controller::del(std::istream& in) {
   std::string id;
   in >> id;
-  this->memoryService.del(id);
+  this->typeahead.del(id);
 }
 
 void Controller::query(Query::Type type, std::istream& in) {
   Query query = this->queryParser.parse(type, in);
-  std::vector<std::string> results = this->memoryService.query(query);
+  std::vector<const Item*> results = this->typeahead.query(query);
 
   std::string separator("");
-  for (const std::string& id : results) {
-    this->out << separator << id;
+  for (const Item* item : results) {
+    this->out << separator << item->id;
     separator = " ";
   }
   this->out << std::endl;

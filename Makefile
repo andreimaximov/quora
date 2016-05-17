@@ -2,8 +2,7 @@ CXX := clang++
 CXXFLAGS := -std=c++11 -stdlib=libc++ -O3 -Wall
 
 SRCS := $(wildcard src/*.cpp)
-HDRS := $(wildcard src/*.h)
-ICPP := $(wildcard src/*icpp)
+HDRS := $(wildcard src/*.hpp)
 OBJS := $(SRCS:.cpp=.o)
 
 TESTSRCS := $(wildcard tests/*.cpp)
@@ -21,7 +20,7 @@ test: $(TESTOBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(TESTOBJS) -o run_tests
 	./run_tests
 
-%.o: %.cpp $(HDRS) $(ICPP)
+%.o: %.cpp $(HDRS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 lint:

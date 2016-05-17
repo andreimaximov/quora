@@ -2,4 +2,4 @@
 
 BASEDIR=$(dirname "$0")
 
-cpplint $(find ${BASEDIR} -name \*.h -or -name \*.cpp)
+cpplint $(find ${BASEDIR} -name \*.hpp -or -name \*.cpp)

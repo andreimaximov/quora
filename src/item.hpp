@@ -5,6 +5,7 @@
 #define SRC_ITEM_H_
 
 struct Item {
+  // Item types
   enum Type {
     USER = 0, TOPIC = 1, QUESTION = 2, BOARD = 3, INVALID = 4
   };
@@ -17,15 +18,21 @@ struct Item {
 
   static const std::string TYPE_BOARD;
 
+  // The unique Item ID
   std::string id;
 
   Type type;
 
   float score;
 
+  // The lowercase string tokens of this item
   std::vector<std::string> tokens;
 
-  static Type stotype(const std::string &str);
+  // The insertion order ID of the item
+  uint32_t order = 0;
+
+  // Parses the string into an Item::Type
+  static Type stotype(const std::string& str);
 };
 
 #endif  // SRC_ITEM_H_

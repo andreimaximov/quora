@@ -1,13 +1,13 @@
 #include <iostream>
 #include <string>
-#include "query-parser.h"
-#include "memory-service.h"
-#include "controller.h"
+#include "query-parser.hpp"
+#include "typeahead.hpp"
+#include "controller.hpp"
 
 int main() {
   QueryParser queryParser;
-  MemoryService memoryService;
-  Controller controller(queryParser, memoryService, std::cout);
+  Typeahead typeahead;
+  Controller controller(queryParser, typeahead, std::cout);
 
   std::string line;
   std::getline(std::cin, line);

@@ -1,6 +1,6 @@
 #include <algorithm>
-#include "query-parser.h"
-#include "item.h"
+#include "query-parser.hpp"
+#include "item.hpp"
 
 const std::string QueryParser::TYPE_QUERY = "QUERY";
 
@@ -13,6 +13,7 @@ void QueryParser::applyBoosts(std::istream& in, Query& query) const {
   std::string boost;
   for (uint16_t i = 0; i < boosts; i++) {
     in >> boost;
+    // Parse the classifier and boost factor
     std::string::size_type position = boost.find(':');
     if (position == std::string::npos) {
         continue;
@@ -22,8 +23,9 @@ void QueryParser::applyBoosts(std::istream& in, Query& query) const {
 
     Item::Type type = Item::stotype(classifier);
 
+    // If the classifier is not a valid Item::Type then it must be an ID.
     if (type == Item::Type::INVALID) {
-      query.idBoosts.push_back(IDBoost {classifier, factor});
+      query.idBoosts[classifier] = factor;
     } else {
       query.typeBoosts[type] = factor;
     }
