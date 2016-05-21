@@ -1,8 +1,8 @@
 #include <string>
 #include <vector>
 
-#ifndef SRC_ITEM_H_
-#define SRC_ITEM_H_
+#ifndef SRC_ITEM_HPP_
+#define SRC_ITEM_HPP_
 
 struct Item {
   // Item types
@@ -35,4 +35,4 @@ struct Item {
   static Type stotype(const std::string& str);
 };
 
-#endif  // SRC_ITEM_H_
+#endif  // SRC_ITEM_HPP_

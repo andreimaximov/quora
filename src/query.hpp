@@ -2,8 +2,8 @@
 #include <unordered_map>
 #include "item.hpp"
 
-#ifndef SRC_QUERY_H_
-#define SRC_QUERY_H_
+#ifndef SRC_QUERY_HPP_
+#define SRC_QUERY_HPP_
 
 struct Query {
   enum Type {
@@ -29,4 +29,4 @@ struct Query {
   double scoreItem(const Item& item) const;
 };
 
-#endif  // SRC_QUERY_H_
+#endif  // SRC_QUERY_HPP_

@@ -1,8 +1,8 @@
 #include <unordered_set>
 #include <algorithm>
 
-#ifndef SRC_INTERSECTION_H_
-#define SRC_INTERSECTION_H_
+#ifndef SRC_INTERSECTION_HPP_
+#define SRC_INTERSECTION_HPP_
 
 //
 // Returns the intersection of the two sets. The function iterates over the
@@ -26,4 +26,4 @@ std::unordered_set<ValueType> intersection(
   return intersect;
 }
 
-#endif  // SRC_INTERSECTION_H_
+#endif  // SRC_INTERSECTION_HPP_

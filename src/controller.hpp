@@ -4,8 +4,8 @@
 #include "typeahead.hpp"
 #include "query.hpp"
 
-#ifndef SRC_CONTROLLER_H_
-#define SRC_CONTROLLER_H_
+#ifndef SRC_CONTROLLER_HPP_
+#define SRC_CONTROLLER_HPP_
 
 class Controller {
  private:
@@ -53,4 +53,4 @@ class Controller {
   void execute(const std::string& statement);
 };
 
-#endif  // SRC_CONTROLLER_H_
+#endif  // SRC_CONTROLLER_HPP_

@@ -5,8 +5,8 @@
 #include "query.hpp"
 #include "trie.hpp"
 
-#ifndef SRC_TYPEAHEAD_H_
-#define SRC_TYPEAHEAD_H_
+#ifndef SRC_TYPEAHEAD_HPP_
+#define SRC_TYPEAHEAD_HPP_
 
 class Typeahead {
  private:
@@ -39,4 +39,4 @@ struct Candidate {
 
 bool operator<(const Candidate& lhs, const Candidate& rhs);
 
-#endif  // SRC_TYPEAHEAD_H_
+#endif  // SRC_TYPEAHEAD_HPP_

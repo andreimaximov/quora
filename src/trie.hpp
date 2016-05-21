@@ -1,8 +1,8 @@
 #include <unordered_set>
 #include <memory>
 
-#ifndef SRC_TRIE_H_
-#define SRC_TRIE_H_
+#ifndef SRC_TRIE_HPP_
+#define SRC_TRIE_HPP_
 
 //
 // Ternary Search Trie implementation of a trie. Each inserted key has a
@@ -174,4 +174,4 @@ class trie {
   std::unordered_set<Value> empty;
 };
 
-#endif  // SRC_TRIE_H_
+#endif  // SRC_TRIE_HPP_

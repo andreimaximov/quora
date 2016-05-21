@@ -2,8 +2,8 @@
 #include <string>
 #include "query.hpp"
 
-#ifndef SRC_QUERY_PARSER_H_
-#define SRC_QUERY_PARSER_H_
+#ifndef SRC_QUERY_PARSER_HPP_
+#define SRC_QUERY_PARSER_HPP_
 
 class QueryParser {
  private:
@@ -29,4 +29,4 @@ class QueryParser {
   Query parse(Query::Type type, std::istream& in) const; // NOLINT
 };
 
-#endif  // SRC_QUERY_PARSER_H_
+#endif  // SRC_QUERY_PARSER_HPP_
