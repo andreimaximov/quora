@@ -1,9 +1,7 @@
 # README
 
 This is my solution to Quora's [Upvotes](https://www.hackerrank.com/contests/quora-haqathon/challenges/upvotes)
-programming challenges.
-
-This editorial uses variables from the original problem statement.
+programming challenge. This editorial uses variables from the original problem statement.
 
 ## Naive Solution
 
