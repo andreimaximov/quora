@@ -4,7 +4,7 @@ import sys
 
 
 def read(fn):
-    return [fn(x) for x in sys.stdin.readline().split(' ')]
+    return [fn(x) for x in sys.stdin.readline().split()]
 
 
 def count_sub_ranges(n):
@@ -49,5 +49,5 @@ def main():
     for i in range(0, len(upvotes) - K + 1):
         print(metric_for_window(upvotes, i, K))
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
