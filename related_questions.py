@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import sys
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Question(object):
@@ -8,7 +11,7 @@ class Question(object):
         self._identifier = identifier
         self._read_time = read_time
         self._related = []
-        self._graph_read_time= -1
+        self._graph_read_time = -1
 
     def identifier(self):
         return self._identifier
@@ -78,32 +81,26 @@ def gather(source, parent, times):
     time = source.get_graph_read_time()
 
     if parent is not None:
-        print('==========')
-
         parent_children = len(parent.get_related())
 
         parent_time = parent.get_graph_read_time()
         parent_time -= parent.read_time() + time / parent_children
-        print(parent_time)
         if parent_children > 1:
             parent_time *= float(parent_children) / (parent_children - 1)
-        print(parent_time)
         parent_time += parent.read_time()
-        print(parent_time)
 
-        print('Parent time went from %f to %f' % (parent.get_graph_read_time(), parent_time))
+        LOGGER.debug('Parent read time went from %f to %f' %
+                     (parent.get_graph_read_time(), parent_time))
 
         source_children = len(source.get_related()) - 1
 
         source_time = source.get_graph_read_time()
         source_time -= source.read_time()
-        print(source_time)
         source_time *= float(source_children) / (source_children + 1)
-        print(source_time)
         source_time += parent_time / (source_children + 1) + source.read_time()
-        print(source_time)
 
-        print('Source time went from %d to %f' % (source.get_graph_read_time(), source_time))
+        LOGGER.debug('Source read time went from %f to %f' %
+                     (source.get_graph_read_time(), source_time))
 
         time = source_time
         source.set_graph_read_time(time)
@@ -115,6 +112,8 @@ def gather(source, parent, times):
             continue
         gather(other, source, times)
 
+    return times
+
 
 def main():
     N = int(sys.stdin.readline())
@@ -122,8 +121,7 @@ def main():
     graph = build_graph(N, T)
 
     read_time(graph[0], None)
-    times = [0] * N
-    gather(graph[0], None, times)
+    times = gather(graph[0], None, [0] * N)
 
     source = 0
     for i in range(1, N):
