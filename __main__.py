@@ -7,25 +7,17 @@ def read(fn):
     return [fn(x) for x in sys.stdin.readline().split()]
 
 
-def matrix(n, m):
-    """
-    Creates an n x m matrix.
-    """
-    return [[None for i in range(0, m)] for j in range(0, n)]
-
-
 def ranges(upvotes, compare):
     """
-    Creates 2 x len(upvotes) matrix representing the distance from each index
-    to the start and end of the range each index is in such that a < b,
-    a <= i < j <= b, and compare(upvotes[i], upvotes[j]) for range [a, b].
+    Creates an array of tuples representing the distance each index is from the
+    start and end of the range each it is in such that a < b, a <= i < j <= b,
+    and compare(upvotes[i], upvotes[j]) for range [a, b].
 
     For example, say the comparator matches non-decreasing pairs of integers
     and we are given the upvotes array [4, 5, 6, 7, 3]. This will return the
-    following matrix.
+    following array.
 
-    [1, 2, 3, 4, 1]
-    [4, 3, 2, 1, 1]
+    [(1, 4), (2, 3), (3, 2), (4, 1), (1, 1)]
 
     For example, index 2 with value 6 is part of range [0, 3]. There are 3
     values {4, 5, 6} between 6 (inclusive) and the start of the range.
@@ -34,7 +26,8 @@ def ranges(upvotes, compare):
     """
     n = len(upvotes)
     start = 0
-    lengths = matrix(2, n)
+    distances = [0] * n
+
     for i in range(0, n):
         # Continue if still in range and comparison holds.
         if i < n - 1 and compare(upvotes[i], upvotes[i + 1]):
@@ -45,34 +38,34 @@ def ranges(upvotes, compare):
 
         # Update distance for all values in range.
         for j in range(start, i + 1):
-            # Distance from j to end of range including j.
-            lengths[0][j] = length - (j - start)
             # Distance from start of range to j including j.
-            lengths[1][j] = j - start + 1
+            to_start = j - start + 1
+            # Distance from j to end of range including j.
+            to_end = length - (j - start)
+            distances[j] = (to_start, to_end)
 
         # Update start of next range.
         start = i + 1
-    return lengths
+
+    return distances
 
 
 def preprocess(upvotes):
     """
-    Calculates a 5 x len(upvotes) matrix that caches information about upvotes.
+    Calculates a 3 x len(upvotes) matrix that caches information about each
+    index in the upvotes list.
     """
-    cache = [None] * 5
+    cache = [None] * 3
 
     # Cache info about non-decreasing ranges.
-    nd = ranges(upvotes, lambda lhs, rhs: lhs <= rhs)
-    cache[0] = nd[0]
-    cache[1] = nd[1]
+    cache[0] = ranges(upvotes, lambda lhs, rhs: lhs <= rhs)
 
     # Calculate info about non-increasing ranges.
-    ni = ranges(upvotes, lambda lhs, rhs: lhs >= rhs)
-    cache[2] = ni[0]
-    cache[3] = ni[1]
+    cache[1] = ranges(upvotes, lambda lhs, rhs: lhs >= rhs)
 
     # Will hold metrics for each window ending at each index.
-    cache[4] = [0 for i in range(0, len(upvotes))]
+    cache[2] = [0 for i in range(0, len(upvotes))]
+
     return cache
 
 
@@ -87,23 +80,27 @@ def metric_for_window(upvotes, cache, i, k):
     hi = i  # Last index in the window
 
     # Use metric from previous window as a base
-    metric = 0 if i == 0 else cache[4][i - 1]
+    metric = 0 if i == 0 else cache[2][i - 1]
 
     # Subtract the metric from the previous window but only for sub-ranges
     # starting at the FIRST index of the previous window. This is because the
     # first index from the last window is no longer part of the current window.
     if lo > 0:
+        non_decreasing = cache[0][lo - 1][1]
+        non_increasing = cache[1][lo - 1][1]
         # If the range is longer than window K, count only the first K values.
-        metric -= (min(k, cache[0][lo - 1]) - min(k, cache[2][lo - 1]))
+        metric -= (min(k, non_decreasing) - min(k, non_increasing))
 
     # Add the metric counting only sub-ranges starting at the LAST index of the
     # current window. This is because the last index of the current window was
     # not in the last window.
     if hi > 0:
+        non_decreasing = cache[0][hi][0]
+        non_increasing = cache[1][hi][0]
         # If the range is longer than window K, count only the first K values.
-        metric += (min(k, cache[1][hi]) - min(k, cache[3][hi]))
+        metric += (min(k, non_decreasing) - min(k, non_increasing))
 
-    cache[4][i] = metric
+    cache[2][i] = metric
     return metric
 
 
