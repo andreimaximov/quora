@@ -2,5 +2,4 @@
 
 BASEDIR=$(dirname "$0")
 
-pep8 $(find ${BASEDIR} -name \*.py)
-
+cpplint $(find ${BASEDIR} -name \*.hpp -or -name \*.cpp)

@@ -83,8 +83,8 @@ double read_time(vector<question>& graph, size_t source, size_t parent) { // NOL
 // must already have expected reading times calculated for all sub-trees of the
 // tree rooted at the source question.
 //
-void traverse_roots(vector<question>& graph,
-                    vector<double>& times,
+void traverse_roots(vector<question>& graph, // NOLINT
+                    vector<double>& times, // NOLINT
                     size_t source,
                     size_t parent) {
   double time = graph[source].tree_read_time;
@@ -101,7 +101,8 @@ void traverse_roots(vector<question>& graph,
     // Adjust the reading time because we are no longer considering the current
     // source question as a child of the parent question.
     if (parent_children > 1) {
-      parent_time *= (double) parent_children /  (parent_children - 1);
+      parent_time *= static_cast<double>(parent_children) /
+        (parent_children - 1);
     }
 
     // Add back the time it takes to read just the parent to its expected
@@ -122,7 +123,8 @@ void traverse_roots(vector<question>& graph,
 
     // Scale down how much the existing children contribute to reading time as
     // we add another child - the parent.
-    source_time *= (double) source_children / (source_children + 1);
+    source_time *= static_cast<double>(source_children) /
+      (source_children + 1);
 
     // Factor in the weighted share of how much the parent, now a child,
     // contributes to the reading time of this question.
