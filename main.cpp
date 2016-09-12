@@ -165,6 +165,7 @@ int main() {
     }
   }
 
+  // Add 1 since we are using a 0-indexed system.
   std::cout << (source + 1) << std::endl;
 
   return 0;
