@@ -23,7 +23,7 @@ the expected reading time once for an arbitrary node S while keeping a cache of
 ERT's for all sub-trees.
 
 Once this `O(N)` preprocessing step is complete, we can recursively shift the
-node form S to each of it's children.
+root from S to each of it's children.
 
 For example, say we are shifting the root from question A to B. We can call
 question A the parent and B the child. When doing this operation there are two
@@ -31,7 +31,7 @@ key points we have to note.
 
 1. The `ERT(B)` is factored into `ERT(A)` as a weighted average.
 2. A or any path through A was never factored into the `ERT(B)` since A is a
-parent.
+parent of B.
 
 This means that when we are shifting the root from A to B we also need to make
 A a child of B. This can be broken up into 2 main steps.
