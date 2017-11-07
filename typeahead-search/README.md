@@ -1,9 +1,7 @@
 # Quora Typeahead Search Challenge
 
-This is my solution to the
-[Quora Typeahead Search Challenge](https://www.quora.com/challenges#typeahead_search).
-
-The challenge is also available on [HackerRank](https://www.hackerrank.com/contests/cs-quora/challenges/quora-typeahead-search).
+This is my solution to Quora's [Typeahead Search](https://www.quora.com/challenges#typeahead_search)
+challenge.
 
 ## Final Algorithm
 
